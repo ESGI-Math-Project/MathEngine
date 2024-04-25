@@ -304,6 +304,7 @@ namespace Voxymore::Core {
 		VXM_CORE_ASSERT(points.size() <= s_Data.CurveBuffer.ControlPoints.size(), "The shader might won't support more than a {0} control point...", s_Data.CurveBuffer.ControlPoints.size());
 		VXM_CORE_ASSERT(nodes.size() <= s_Data.CurveBuffer.ControlPoints.size(), "The shader might won't support more than a {0} nodes...", s_Data.CurveBuffer.ControlPoints.size());
 		VXM_CORE_ASSERT(points.size() == weights.size(), "The number of weight and the number of points should be equal.");
+		VXM_CORE_ASSERT(nodes.size() >= degree+1, "The number of nodes must be superior to {}.",degree+1);
 
 		uint32_t controlPointCount = std::min(s_Data.CurveBuffer.ControlPoints.size(), points.size());
 		uint32_t nodeCount = std::min(s_Data.CurveBuffer.ControlPoints.size(), nodes.size());

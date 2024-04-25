@@ -220,6 +220,51 @@ namespace Voxymore
 			return ImGui::InputScalar(name, ImGuiDataType_U64, (uint64_t*)id, nullptr, nullptr, "%llu", flags);
 		}
 
+		bool ImGuiLib::InputEntityID(const char* name, UUID* id, ImGuiInputTextFlags flags)
+		{
+			VXM_PROFILE_FUNCTION();
+			ImGuiWindow* window = ImGui::GetCurrentWindow();
+			if (window->SkipItems) {
+				return false;
+			}
+
+			bool changed = false;
+
+			ImGuiContext& g = *GImGui;
+			ImGui::BeginGroup();
+			ImGui::PushID(name);
+
+			changed |= InputUUID(name, id, flags);
+
+
+			if(ImGui::BeginDragDropTarget())
+			{
+				std::string payloadStr = EntityPayloadID;
+				VXM_CORE_ASSERT(payloadStr.size() < 32, "The payloadID '{}' is too large.", payloadStr);
+				const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(payloadStr.c_str());
+				if (payload != nullptr) {
+					VXM_CORE_ASSERT(payload->DataSize == sizeof(UUID), "The data is not an UUID");
+					*id = *((UUID*)(payload->Data));
+					changed = true;
+				}
+				ImGui::EndDragDropTarget();
+			}
+
+			ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
+			if(ImGui::Button("Reset")) {
+				*id = UUID(0);
+				changed = true;
+			}
+
+			ImGui::SameLine(0, g.Style.ItemInnerSpacing.x);
+			ImGui::TextEx(name, ImGui::FindRenderedTextEnd(name));
+
+			ImGui::PopID();
+			ImGui::EndGroup();
+
+			return changed;
+		}
+
 		float ImGuiLib::GetWindowFontScale()
 		{
 			ImGuiWindow* window = ImGui::GetCurrentWindow();

@@ -122,4 +122,14 @@ namespace Voxymore::Core
 	PrimitiveComponent::PrimitiveComponent(PrimitiveMesh::Type primitiveType) : PrimitiveType(PrimitiveMesh::Type::Cube), m_IsDirty(true)
 	{
 	}
+
+	PrimitiveComponent::PrimitiveComponent(PrimitiveMesh::Type primitiveType, MaterialField field) : PrimitiveType(PrimitiveMesh::Type::Cube), m_Material(field), m_IsDirty(true)
+	{
+	}
+
+	void PrimitiveComponent::SetMaterial(MaterialField field)
+	{
+		m_Material = field;
+		m_IsDirty = true;
+	}
 }

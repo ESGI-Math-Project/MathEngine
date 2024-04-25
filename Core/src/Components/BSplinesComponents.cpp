@@ -160,7 +160,7 @@ namespace Voxymore::Core
 		changed |= ImGui::DragInt("Definition", &m_Definition, 1, 1, INT_MAX);
 		changed |= ImGuiLib::DrawVector<glm::vec3>("Points", &m_Points, [](const char* c, glm::vec3* p)->bool{return ImGui::DragFloat3(c,glm::value_ptr(*p));}, glm::vec3(0), m_Degree, UINT64_MAX);
 		changed |= ImGuiLib::DrawVector<float>("Weights", &m_Weight, VXM_BIND_FN(DragFloat), 1.0f, m_Points.size(), m_Points.size());
-		changed |= ImGuiLib::DrawVector<float>("Nodes", &m_Nodes, VXM_BIND_FN(DragFloat));
+		changed |= ImGuiLib::DrawVector<float>("Nodes", &m_Nodes, VXM_BIND_FN(DragFloat), m_Nodes.size(), m_Degree+1, UINT64_MAX);
 
 //		int k = m_Points.size();
 //		int m = m_Degree;

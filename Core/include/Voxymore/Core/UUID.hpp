@@ -21,6 +21,7 @@ namespace Voxymore::Core
 		inline operator std::string() const { return string(); }
 		inline operator uint64_t() const { return m_UUID; }
 		static UUID FromString(const std::string&);
+		inline explicit operator bool() const {return m_UUID;}
 	private:
 		uint64_t m_UUID;
 	};

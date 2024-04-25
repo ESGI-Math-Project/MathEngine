@@ -140,11 +140,23 @@ namespace Voxymore::Editor {
         if(entity == PropertyPanel::s_SelectedEntity) flags |= ImGuiTreeNodeFlags_Selected;
 
         bool open = ImGui::TreeNodeEx(EntityID, flags, tag.c_str());
-        //TODO: change selected entity on selection changed.
-        if(ImGui::IsItemClicked() || ImGui::IsItemActivated())
-        {
-            PropertyPanel::s_SelectedEntity = entity;
-        }
+
+
+
+		//TODO: change selected entity on selection changed.
+		if(ImGui::IsMouseDown(ImGuiMouseButton_Left) && ImGui::IsItemHovered() && PropertyPanel::s_SelectedEntity == entity && entity)
+		{
+			if(ImGui::BeginDragDropSource())
+			{
+				UUID id = entity.id();
+				ImGui::SetDragDropPayload(EntityPayloadID, &id, sizeof(UUID));
+				ImGui::EndDragDropSource();
+			}
+		}
+		else if(ImGui::IsItemClicked() || ImGui::IsItemActivated())
+		{
+			PropertyPanel::s_SelectedEntity = entity;
+		}
 
         bool deleteEntity = false;
         // Right click on blank space

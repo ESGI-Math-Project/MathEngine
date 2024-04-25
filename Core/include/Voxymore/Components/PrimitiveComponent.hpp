@@ -14,6 +14,8 @@ namespace Voxymore::Core
 	class PrimitiveComponent : public Component<PrimitiveComponent>
 	{
 		VXM_IMPLEMENT_COMPONENT(PrimitiveComponent);
+		void SetMaterial(MaterialField field);
+
 	public:
 		void DeserializeComponent(YAML::Node& node);
 		void SerializeComponent(YAML::Emitter& out);
@@ -22,6 +24,7 @@ namespace Voxymore::Core
 		inline PrimitiveComponent() = default;
 		inline ~PrimitiveComponent() = default;
 		PrimitiveComponent(PrimitiveMesh::Type primitiveType);
+		PrimitiveComponent(PrimitiveMesh::Type primitiveType, MaterialField field);
 
 		void Load();
 		bool IsLoaded() const;

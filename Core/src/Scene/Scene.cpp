@@ -458,6 +458,8 @@ namespace Voxymore::Core
 	Entity Scene::GetEntity(UUID id)
 	{
 		VXM_PROFILE_FUNCTION();
+		if (!id) return {};
+
 		auto it = m_Entities.find(id);
 		if(it != m_Entities.end()) {
 			return it->second;

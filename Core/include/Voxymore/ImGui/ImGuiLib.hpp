@@ -40,6 +40,7 @@ namespace Voxymore::Core
 		static bool DragRealRange2(const std::string& label, Real *v_current_min, Real *v_current_max, float v_speed = 1.0f, Real v_min = 0.0f, Real v_max = 0.0f, const char *format = "%.3f", const char *format_max = 0, ImGuiSliderFlags flags = 0);
 
 		static bool InputUUID(const char* name, UUID* id, ImGuiInputTextFlags flags = 0);
+		static bool InputEntityID(const char* name, UUID* id, ImGuiInputTextFlags flags = 0);
 
 		template<typename T>
 		static bool DrawAssetField(const char* name, AssetField<T>* v)

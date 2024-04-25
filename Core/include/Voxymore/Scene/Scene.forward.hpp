@@ -8,6 +8,8 @@
 
 namespace Voxymore::Core
 {
+	static inline constexpr const char* const EntityPayloadID = "VXM_ENTITY_UUID";
+
 	template<typename... Type>
 	inline constexpr entt::exclude_t<Type...> exclude{};
 
