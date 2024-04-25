@@ -1,7 +1,9 @@
-Type:
-  AssetRegistry
+Type: AssetRegistry
 AssetRegistry:
   Assets:
+    - Handle: 397711132170327322
+      FilePath: {Source: 2, Path: Scenes\RigidbodyTestScene.vxm_scn}
+      Type: AssetType::Scene
     - Handle: 767692958919381968
       FilePath: {Source: 2, Path: Shaders\BezierDeCasteljau.vxm_shader}
       Type: AssetType::Shader
@@ -11,6 +13,12 @@ AssetRegistry:
     - Handle: 1069266738333071017
       FilePath: {Source: 2, Path: Materials\BezierDeCasteljau.vxm_material}
       Type: AssetType::Material
+    - Handle: 1157432590053259575
+      FilePath: {Source: 1, Path: Shaders\TextureShader.vert}
+      Type: AssetType::ShaderSource
+    - Handle: 1175449101209272580
+      FilePath: {Source: 2, Path: Scenes\SpringSampleScene.vxm_scn}
+      Type: AssetType::Scene
     - Handle: 1907233133168175017
       FilePath: {Source: 4, Path: MemoryAssets/1907233133168175017.vxm_memory}
       Type: AssetType::Scene
@@ -20,9 +28,24 @@ AssetRegistry:
     - Handle: 2176829156368268480
       FilePath: {Source: 4, Path: MemoryAssets/2176829156368268480.vxm_memory}
       Type: AssetType::Scene
+    - Handle: 3115455789335269632
+      FilePath: {Source: 1, Path: Shaders\TextureShader.frag}
+      Type: AssetType::ShaderSource
+    - Handle: 3488731097847068191
+      FilePath: {Source: 2, Path: Scenes\RBBuoyancy.vxm_scn}
+      Type: AssetType::Scene
+    - Handle: 4537017355397821026
+      FilePath: {Source: 2, Path: Materials\Default.vxm_material}
+      Type: AssetType::Material
+    - Handle: 4548950138472944976
+      FilePath: {Source: 2, Path: Shaders\Default.vxm_shader}
+      Type: AssetType::Shader
     - Handle: 5003646183903738526
       FilePath: {Source: 4, Path: MemoryAssets/5003646183903738526.vxm_memory}
       Type: AssetType::Scene
+    - Handle: 5640526826458557657
+      FilePath: {Source: 1, Path: Shaders\FlatColor.frag}
+      Type: AssetType::ShaderSource
     - Handle: 6166524610277000624
       FilePath: {Source: 4, Path: MemoryAssets/6166524610277000624.vxm_memory}
       Type: AssetType::Scene
@@ -38,6 +61,9 @@ AssetRegistry:
     - Handle: 7563315893819623377
       FilePath: {Source: 1, Path: Shaders\Bezier\Bezier.tessco}
       Type: AssetType::ShaderSource
+    - Handle: 8017759948083153163
+      FilePath: {Source: 2, Path: Scenes\BuoyancyTest.vxm_scn}
+      Type: AssetType::Scene
     - Handle: 8098330176453956795
       FilePath: {Source: 1, Path: Shaders\Bezier4\Bezier4.tessco}
       Type: AssetType::ShaderSource
@@ -89,6 +115,12 @@ AssetRegistry:
     - Handle: 16039519178751608459
       FilePath: {Source: 2, Path: Shaders\BezierPascal.vxm_shader}
       Type: AssetType::Shader
+    - Handle: 17514478483643227332
+      FilePath: {Source: 2, Path: Scenes\OtherSampleScene.vxm_scn}
+      Type: AssetType::Scene
+    - Handle: 18059310846424599746
+      FilePath: {Source: 1, Path: Shaders\FlatColor.vert}
+      Type: AssetType::ShaderSource
     - Handle: 18076994461876039139
       FilePath: {Source: 1, Path: Shaders\DefaultShader.frag}
       Type: AssetType::ShaderSource

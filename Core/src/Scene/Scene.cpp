@@ -4,19 +4,19 @@
 
 #include <utility>
 
+#include "Voxymore/Components/BSplinesComponents.hpp"
+#include "Voxymore/Components/BezierCurveComponent.hpp"
 #include "Voxymore/Components/Components.hpp"
+#include "Voxymore/Components/GenericBezierCurve.hpp"
+#include "Voxymore/Components/LightComponent.hpp"
 #include "Voxymore/Components/ModelComponent.hpp"
 #include "Voxymore/Components/PrimitiveComponent.hpp"
-#include "Voxymore/Components/BezierCurve.hpp"
-#include "Voxymore/Components/GenericBezierCurve.hpp"
-#include "Voxymore/Components/BSplinesComponents.hpp"
 #include "Voxymore/Debug/Profiling.hpp"
 #include "Voxymore/Renderer/Renderer.hpp"
 #include "Voxymore/Scene/Entity.hpp"
 #include "Voxymore/Scene/Scene.hpp"
 #include "Voxymore/Scene/SceneSerializer.hpp"
 #include "Voxymore/Scene/Systems.hpp"
-#include "Voxymore/Components/LightComponent.hpp"
 
 
 namespace Voxymore::Core
@@ -262,9 +262,9 @@ namespace Voxymore::Core
 
 		Renderer::BeginScene(camera, lights);
 		{
-			auto bezierView = m_Registry.view<BezierCurve, TransformComponent>(entt::exclude<DisableComponent>);
+			auto bezierView = m_Registry.view<BezierCurveComponent, TransformComponent>(entt::exclude<DisableComponent>);
 			for (auto entity: bezierView) {
-				auto&& [bezier, transform] = bezierView.get<BezierCurve, TransformComponent>(entity);
+				auto&& [bezier, transform] = bezierView.get<BezierCurveComponent, TransformComponent>(entity);
 				if(!bezier.m_Material) continue;
 
 				Mat4 trs = transform.GetTransform();
@@ -358,9 +358,9 @@ namespace Voxymore::Core
 			Renderer::BeginScene(*mainCamera, cameraTransform, lights);
 
 
-			auto bezierView = m_Registry.view<BezierCurve, TransformComponent>(entt::exclude<DisableComponent>);
+			auto bezierView = m_Registry.view<BezierCurveComponent, TransformComponent>(entt::exclude<DisableComponent>);
 			for (auto entity: bezierView) {
-				auto&& [bezier, transform] = bezierView.get<BezierCurve, TransformComponent>(entity);
+				auto&& [bezier, transform] = bezierView.get<BezierCurveComponent, TransformComponent>(entity);
 				if(!bezier.m_Material) continue;
 				Mat4 trs = transform.GetTransform();
 				std::vector<glm::vec3> controlPoints = {glm::vec3(), glm::vec3(), glm::vec3(), glm::vec3()};

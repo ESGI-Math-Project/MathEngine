@@ -25,6 +25,7 @@ namespace Voxymore::Core
 		};
 	public:
 		inline GenericBezierCurve() = default;
+		GenericBezierCurve(std::vector<Vec3> points);
 		inline ~GenericBezierCurve() = default;
 		void DeserializeComponent(YAML::Node& node, Entity e);
 		void SerializeComponent(YAML::Emitter& out, Entity e);

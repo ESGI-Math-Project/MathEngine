@@ -113,7 +113,7 @@ namespace Voxymore::Core
 
 // TODO: Replace the macro with a self implementing templated inheritance
 #define VXM_IMPLEMENT_SYSTEM(SYS) private: \
-    static ::Voxymore::Core::Ref<SYS> s_Instance; \
+    static inline ::Voxymore::Core::Ref<SYS> s_Instance = nullptr; \
 public: \
 	inline virtual const std::string GetName() const override { return #SYS; }; \
 	inline static const std::string StaticGetName() { return #SYS; }; \
@@ -135,7 +135,7 @@ public: \
 	}
 
 
-#define VXM_DECLARE_SYSTEM(SYS) ::Voxymore::Core::Ref<SYS> SYS::s_Instance = nullptr;
+#define VXM_DECLARE_SYSTEM(SYS)
 #define VXM_CREATE_SYSTEM(SYS) static_block{ SYS::CreateSystem(); }
 
 /*

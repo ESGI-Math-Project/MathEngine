@@ -38,7 +38,7 @@ namespace Voxymore::Core
 			}
 			else
 			{
-				system->ResetSystem();
+				GetInstance().s_Systems[name]->ResetSystem();
 			}
 		}
 		

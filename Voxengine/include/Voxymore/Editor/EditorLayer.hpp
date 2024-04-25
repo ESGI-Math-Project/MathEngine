@@ -81,6 +81,8 @@ namespace Voxymore::Editor {
 
 		virtual void OnAttach() override;
 		virtual void OnDetach() override;
+
+		Ref<Scene> GetActiveScene() {return m_ActiveScene;}
 	private:
 		void RenderDockspace();
 		void DrawGizmosWindow();

@@ -2,16 +2,18 @@
 // Created by ianpo on 25/03/2024.
 //
 
-#include "Voxymore/Components/BezierCurve.hpp"
+#include "Voxymore/Components/BezierCurveComponent.hpp"
 #include "ImGuizmo.h"
 #include "Voxymore/Components/Components.hpp"
 #include "Voxymore/ImGui/ImGuiLib.hpp"
+#include "Voxymore/Math/BezierCurve.hpp"
+
 
 namespace Voxymore
 {
 	namespace Core
 	{
-		void BezierCurve::DeserializeComponent(YAML::Node &node, Entity e)
+		void BezierCurveComponent::DeserializeComponent(YAML::Node &node, Entity e)
 		{
 			VXM_PROFILE_FUNCTION();
 			static const std::array<Vec3, 4> defaultPoints = {Vec3{-1,0,0}, Vec3{0,1,1}, Vec3{0,-1,-1}, Vec3{1,0,0}};
@@ -30,7 +32,7 @@ namespace Voxymore
 
 		}
 
-		void BezierCurve::SerializeComponent(YAML::Emitter &out, Entity e)
+		void BezierCurveComponent::SerializeComponent(YAML::Emitter &out, Entity e)
 		{
 			VXM_PROFILE_FUNCTION();
 			out << KEYVAL("Material", m_Material);
@@ -44,7 +46,7 @@ namespace Voxymore
 			out << KEYVAL("Definition",Definition);
 		}
 
-		bool BezierCurve::OnImGuiRender(Entity e)
+		bool BezierCurveComponent::OnImGuiRender(Entity e)
 		{
 			VXM_PROFILE_FUNCTION();
 			bool changed = false;
@@ -57,7 +59,7 @@ namespace Voxymore
 			return changed;
 		}
 
-		bool BezierCurve::OnImGuizmo(Entity e, const float* viewMatrix, const float* projectionMatrix)
+		bool BezierCurveComponent::OnImGuizmo(Entity e, const float* viewMatrix, const float* projectionMatrix)
 		{
 			VXM_PROFILE_FUNCTION();
 			bool changed = false;
@@ -79,7 +81,7 @@ namespace Voxymore
 			return changed;
 		}
 
-		BoundingBox BezierCurve::GetBoundingWorldBox(const Mat4& localToWorld) const
+		BoundingBox BezierCurveComponent::GetBoundingWorldBox(const Mat4& localToWorld) const
 		{
 			VXM_PROFILE_FUNCTION();
 			std::array<Vec3, 4> worldPoints = LocalControlPoints;
@@ -89,7 +91,7 @@ namespace Voxymore
 			return worldPoints;
 		}
 
-		BoundingSphere BezierCurve::GetBoundingWorldSphere(const Mat4& localToWorld) const
+		BoundingSphere BezierCurveComponent::GetBoundingWorldSphere(const Mat4& localToWorld) const
 		{
 			VXM_PROFILE_FUNCTION();
 			std::array<Vec3, 4> worldPoints = LocalControlPoints;

@@ -13,12 +13,12 @@
 
 namespace Voxymore::Core
 {
-	struct BezierCurve : public SelfAwareComponent<BezierCurve>
+	struct BezierCurveComponent : public SelfAwareComponent<BezierCurveComponent>
 	{
-	VXM_IMPLEMENT_NAME(BezierCurve);
+	VXM_IMPLEMENT_NAME(BezierCurveComponent);
 	public:
-		BezierCurve() = default;
-		~BezierCurve() = default;
+		BezierCurveComponent() = default;
+		~BezierCurveComponent() = default;
 
 		void DeserializeComponent(YAML::Node& node, Entity e);
 		void SerializeComponent(YAML::Emitter& out, Entity e);
@@ -36,7 +36,7 @@ namespace Voxymore::Core
 		int Definition = 1000;
 	};
 
-	VXM_CREATE_COMPONENT(BezierCurve)
+	VXM_CREATE_COMPONENT(BezierCurveComponent)
 
 } // namespace Voxymore::Core
 

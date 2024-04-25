@@ -27,6 +27,7 @@
 #include "Voxymore/Assets/AssetManager.hpp"
 
 #include "Voxymore/Math/Math.hpp"
+#include "Voxymore/Math/BezierCurve.hpp"
 #include "Voxymore/Math/BoundingObject.hpp"
 #include "Voxymore/Math/BoundingSphere.hpp"
 
@@ -38,14 +39,14 @@
 #include "Voxymore/Project/Project.hpp"
 #include "Voxymore/Project/ProjectSerializer.hpp"
 
+#include "Voxymore/Components/BSplinesComponents.hpp"
+#include "Voxymore/Components/BezierCurveComponent.hpp"
 #include "Voxymore/Components/Components.hpp"
 #include "Voxymore/Components/CustomComponent.hpp"
+#include "Voxymore/Components/GenericBezierCurve.hpp"
+#include "Voxymore/Components/LightComponent.hpp"
 #include "Voxymore/Components/ModelComponent.hpp"
 #include "Voxymore/Components/PrimitiveComponent.hpp"
-#include "Voxymore/Components/LightComponent.hpp"
-#include "Voxymore/Components/BezierCurve.hpp"
-#include "Voxymore/Components/GenericBezierCurve.hpp"
-#include "Voxymore/Components/BSplinesComponents.hpp"
 
 #include "Voxymore/ParticlesPhysics/Collisions/ParticleContact.hpp"
 #include "Voxymore/ParticlesPhysics/Components/AnchoredSpringComponent.hpp"

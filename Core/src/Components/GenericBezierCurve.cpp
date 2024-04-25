@@ -10,6 +10,10 @@
 namespace Voxymore::Core
 {
 
+	GenericBezierCurve::GenericBezierCurve(std::vector<Vec3> points) : m_Points(points)
+	{
+	}
+
 	void GenericBezierCurve::DeserializeComponent(YAML::Node& node, Entity e)
 	{
 		VXM_PROFILE_FUNCTION();

@@ -157,7 +157,6 @@ namespace Voxymore::Core
 		inline static Mat4 Translate(const Mat4& mat, Vec3 translation) { VXM_PROFILE_FUNCTION(); return glm::translate(mat, translation); }
 		inline static Mat4 Scale(const Mat4& mat, Vec3 scale) { VXM_PROFILE_FUNCTION(); return glm::scale(mat, scale); }
 
-		inline static Real Pow(Real value, Real power) { VXM_PROFILE_FUNCTION(); return glm::pow(value, power); }
 
 		/**
 		 * Transforms a 3D point using a 4x4 transformation matrix.
@@ -204,6 +203,7 @@ namespace Voxymore::Core
 			return mat * glm::vec<4,T,Q>(point,(T)0);
 		}
 
+		inline static Real Pow(Real value, Real power) { VXM_PROFILE_FUNCTION(); return glm::pow(value, power); }
 		/**
 		 * Calculate the power of a value.
 		 *
@@ -228,6 +228,22 @@ namespace Voxymore::Core
 			}
 
 			return isNegative ? static_cast<T>(1) / result : result;
+		}
+
+		int64_t Pow(int64_t base, uint64_t exp)
+		{
+			int64_t result = 1;
+			for (;;)
+			{
+				if (exp & 1)
+					result *= base;
+				exp >>= 1;
+				if (!exp)
+					break;
+				base *= base;
+			}
+
+			return result;
 		}
 
 		template<typename T>
@@ -275,6 +291,66 @@ namespace Voxymore::Core
 		{
 			VXM_PROFILE_FUNCTION();
 			return glm::dot(vec1, vec2);
+		}
+
+		template<typename T, glm::qualifier Q = glm::defaultp>
+		static int Orientation(const glm::vec<2,T,Q>& p, const glm::vec<2,T,Q>& q, const glm::vec<2,T,Q>& r) {
+			VXM_PROFILE_FUNCTION();
+			T val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+			if (val == 0) return 0;
+			return (val > 0) ? 1 : 2;
+		}
+
+		template<typename T, glm::qualifier Q = glm::defaultp>
+		static std::vector<glm::vec<2,T,Q>> ConvexHull(const std::vector<glm::vec<2,T,Q>>& points) {
+			VXM_PROFILE_FUNCTION();
+			uint64_t n = points.size();
+			if (n < 3) return {};
+			int left = 0;
+			for (uint64_t i = 1; i < n; i++) {
+				if (points[i].x < points[left].x) {
+					left = i;
+				}
+			}
+
+			int p = left, q;
+			std::vector<glm::vec<2,T,Q>> hull;
+
+			// Jarvis
+			do {
+				hull.push_back(points[p]);
+				q = (p + 1) % n;
+				for (uint64_t i = 0; i < n; i++) {
+					if (Orientation(points[p], points[i], points[q]) == 2) {
+						q = i;
+					}
+				}
+				p = q;
+			} while (p != left);
+
+			return hull;
+		}
+
+		template<typename T, glm::qualifier Q = glm::defaultp>
+		static std::vector<glm::vec<3,T,Q>> ConvexHull(const std::vector<glm::vec<3,T,Q>>& points)
+		{
+			VXM_PROFILE_FUNCTION();
+			std::vector<glm::vec<3,T,Q>> result;
+			if(points.empty()) return result;
+			std::vector<glm::vec<2,T,Q>> ps(points.size());
+			T z = points[0].z;
+			for (uint64_t i = 0; i < points.size(); ++i) {
+				VXM_CORE_CHECK(z == points[i].z, "The Z of all the point aren't all equals. We'll use z = {}", z);
+				ps[i] = points[i];
+			}
+
+			ps = ConvexHull(ps);
+			result.resize(ps.size());
+			for (uint64_t i = 0; i < ps.size(); ++i) {
+				result[i] = glm::vec<3,T,Q>(ps[i], z);
+			}
+
+			return result;
 		}
 
 		inline constexpr static const Vec3 Gravity = Vec3(0,-9.81,0);

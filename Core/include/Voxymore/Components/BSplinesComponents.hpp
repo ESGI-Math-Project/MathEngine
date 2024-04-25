@@ -21,6 +21,7 @@ namespace Voxymore::Core
 		VXM_IMPLEMENT_NAME(BSplinesComponents);
 	public:
 		BSplinesComponents() = default;
+		BSplinesComponents(std::vector<glm::vec3> points) : m_Points(points) {}
 		~BSplinesComponents() = default;
 
 		void DeserializeComponent(YAML::Node& node, Entity e);

@@ -9,6 +9,7 @@
 #include "Voxymore/Editor/Panels/SceneHierarchyPanel.hpp"
 #include "Voxymore/Components/LightComponent.hpp"
 
+#include "Voxymore/Components/HullComponent.hpp"
 
 namespace Voxymore::Editor {
 	Ref<Scene> SceneHierarchyPanel::s_Context = nullptr;
@@ -117,6 +118,15 @@ namespace Voxymore::Editor {
 			static uint64_t entityLightCount = 0;
 			auto e = s_Context->CreateEntity("Light - " + std::to_string(entityLightCount++));
 			e.AddComponent<LightComponent>();
+			PropertyPanel::s_SelectedEntity = e;
+		}
+
+		if(ImGui::MenuItem("Create Hull"))
+		{
+			static uint64_t entityHullCount = 0;
+			auto e = s_Context->CreateEntity("Hull - " + std::to_string(entityHullCount++));
+			e.AddComponent<PrimitiveComponent>(PrimitiveMesh::Type::Cube);
+			e.AddComponent<HullComponent>();
 			PropertyPanel::s_SelectedEntity = e;
 		}
 	}

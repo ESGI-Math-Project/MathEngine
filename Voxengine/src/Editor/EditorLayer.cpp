@@ -10,6 +10,8 @@
 #include <ImGuizmo.h>
 
 
+#include "TestSystems/HullToCurve.hpp"
+
 namespace Voxymore::Editor {
     EditorLayer::EditorLayer() : Layer("EditorLayer")
     {
@@ -82,6 +84,8 @@ namespace Voxymore::Editor {
 			Ref<BasePanel> panel = metadata.createPanelFunc();
 			m_Panels.push_back(panel);
 		}
+
+		HullToCurve::CreateSystem();
     }
 
     void EditorLayer::OnDetach()
@@ -91,6 +95,7 @@ namespace Voxymore::Editor {
         Project::RemoveOnLoad(m_OnProjectReloadId);
 		m_PanelCreator.clear();
 		m_Panels.clear();
+		HullToCurve::DeleteSystem();
     }
 
     //TODO: Pause the update when m_SceneState == SceneState::Pause
