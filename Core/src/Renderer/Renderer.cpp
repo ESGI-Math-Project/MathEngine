@@ -8,7 +8,8 @@
 
 namespace Voxymore::Core {
 	static RendererData s_Data;
-	static AssetHandle s_BindedShader = 0;
+	static ShaderField s_BindedShader = NullAssetHandle;
+	static MaterialField s_BindedMaterial = NullAssetHandle;
 
 	RendererData::ModelData::ModelData(glm::mat4 transformMatrix, glm::mat4 normalMatrix, int entityId) : TransformMatrix(transformMatrix), NormalMatrix(normalMatrix), EntityId(entityId) {}
 
@@ -34,7 +35,8 @@ namespace Voxymore::Core {
 	{
 		VXM_PROFILE_FUNCTION();
 
-		s_BindedShader = 0;
+		s_BindedShader = NullAssetHandle;
+		s_BindedMaterial = NullAssetHandle;
 		s_Data.CameraBuffer.ViewProjectionMatrix = camera.GetViewProjection();
 		s_Data.CameraBuffer.CameraPosition = glm::vec4(camera.GetPosition(), 1);
 		s_Data.CameraBuffer.CameraDirection = glm::vec4(camera.GetForwardDirection(), 0);
@@ -53,6 +55,8 @@ namespace Voxymore::Core {
 	void Renderer::BeginScene(const Camera &camera, const glm::mat4 &transform, std::vector<Light> lights)
 	{
 		VXM_PROFILE_FUNCTION();
+		s_BindedShader = NullAssetHandle;
+		s_BindedMaterial = NullAssetHandle;
 		s_Data.CameraBuffer.ViewProjectionMatrix = camera.GetProjectionMatrix() * glm::inverse(transform);
 		auto p = transform * glm::vec4{0,0,0,1};
 		s_Data.CameraBuffer.CameraPosition = glm::vec4(glm::vec3(p) / p.w, 1);
@@ -69,49 +73,49 @@ namespace Voxymore::Core {
 		s_Data.OpaqueMeshes.clear();
 	}
 
+	void Renderer::DrawMesh(Ref<Mesh> m, const glm::mat4& modelMatrix, int entityId)
+	{
+		s_Data.ModelBuffer.TransformMatrix = modelMatrix;
+		s_Data.ModelBuffer.NormalMatrix = glm::transpose(glm::inverse(modelMatrix));
+		s_Data.ModelBuffer.EntityId = entityId;
+		s_Data.ModelUniformBuffer->SetData(&s_Data.ModelBuffer, sizeof(RendererData::ModelData));
+
+		MaterialField mat = m->GetMaterial();
+		VXM_CORE_ASSERT(mat, "The material ID({}) is not valid.", mat.GetHandle().string());
+		Ref<Material> matPtr = mat.GetAsset();
+		if(mat) {
+			s_Data.MaterialUniformBuffer->SetData(&matPtr->GetMaterialsParameters(), sizeof(MaterialParameters));
+			matPtr->Bind(false);
+			s_BindedMaterial = mat;
+		}
+
+		ShaderField shader = matPtr->GetShaderHandle();
+		VXM_CORE_ASSERT(shader, "The shader ID({}) from the material '{}' is not valid.", matPtr->GetMaterialName(), shader.GetHandle().string());
+		if (shader) {
+			shader.GetAsset()->Bind();
+			s_BindedShader = shader;
+		}
+		m->Bind();
+		RenderCommand::DrawIndexed(m->GetVertexArray());
+	}
+
 	void Renderer::EndScene() {
 		VXM_PROFILE_FUNCTION();
 
 		for(const auto& mesh : s_Data.OpaqueMeshes)
 		{
-			s_Data.ModelBuffer.TransformMatrix = std::get<1>(mesh);
-			s_Data.ModelBuffer.NormalMatrix = glm::transpose(glm::inverse(std::get<1>(mesh)));
-			s_Data.ModelBuffer.EntityId = std::get<2>(mesh);
-
-			s_Data.ModelUniformBuffer->SetData(&s_Data.ModelBuffer, sizeof(RendererData::ModelData));
-			s_Data.MaterialUniformBuffer->SetData(&std::get<0>(mesh)->GetMaterial().GetAsset()->GetMaterialsParameters(), sizeof(MaterialParameters));
-			std::get<0>(mesh)->Bind();
-			auto shaderName = std::get<0>(mesh)->GetMaterial().GetHandle();
-			if(shaderName != s_BindedShader)
-			{
-				std::get<0>(mesh)->GetMaterial().GetAsset()->Bind();
-				s_BindedShader = shaderName;
-			}
-			RenderCommand::DrawIndexed(std::get<0>(mesh)->GetVertexArray());
+			DrawMesh(std::get<0>(mesh), std::get<1>(mesh), std::get<2>(mesh));
 		}
 
 		for(auto it = s_Data.AlphaMeshes.rbegin(); it != s_Data.AlphaMeshes.rend(); ++it)
 		{
 			auto& mesh = it->second;
-
-			s_Data.ModelBuffer.TransformMatrix = std::get<1>(mesh);
-			s_Data.ModelBuffer.NormalMatrix = glm::transpose(glm::inverse(std::get<1>(mesh)));
-			s_Data.ModelBuffer.EntityId = std::get<2>(mesh);
-
-			s_Data.ModelUniformBuffer->SetData(&s_Data.ModelBuffer, sizeof(RendererData::ModelData));
-			s_Data.MaterialUniformBuffer->SetData(&std::get<0>(mesh)->GetMaterial().GetAsset()->GetMaterialsParameters(), sizeof(MaterialParameters));
-			std::get<0>(mesh)->Bind();
-			auto shaderName = std::get<0>(mesh)->GetMaterial().GetHandle();
-			if(shaderName != s_BindedShader)
-			{
-				std::get<0>(mesh)->GetMaterial().GetAsset()->Bind();
-				s_BindedShader = shaderName;
-			}
-			RenderCommand::DrawIndexed(std::get<0>(mesh)->GetVertexArray());
+			DrawMesh(std::get<0>(mesh), std::get<1>(mesh), std::get<2>(mesh));
 		}
 
 		RenderCommand::ClearBinding();
-		s_BindedShader = 0;
+		s_BindedShader = NullAssetHandle;
+		s_BindedMaterial = NullAssetHandle;
 	}
 
 	void Renderer::Submit(Ref<Shader>& shader, const Ref<VertexArray> &vertexArray, const glm::mat4& transform, int entityId) {
@@ -124,11 +128,11 @@ namespace Voxymore::Core {
 		s_Data.ModelBuffer.EntityId = entityId;
 		s_Data.ModelUniformBuffer->SetData(&s_Data.ModelBuffer, sizeof(RendererData::ModelData));
 
-		auto& shaderName = shader->Handle;
-		if(shaderName != s_BindedShader)
-		{
+		ShaderField shaderField = shader->Handle;
+		VXM_CORE_ASSERT(shader, "The shader ID({}) is not valid.", shaderField.GetHandle().string());
+		if (shaderField) {
 			shader->Bind();
-			s_BindedShader = shaderName;
+			s_BindedShader = shaderField;
 		}
 		//TODO: Set the view projection matrix once per frame not once per model drawn.
 		//        std::dynamic_pointer_cast<OpenGLShader>(shader)->SetUniformMat4("u_ViewProjectionMatrix", s_Data.ViewProjectionMatrix);
@@ -149,12 +153,23 @@ namespace Voxymore::Core {
 		s_Data.ModelUniformBuffer->SetData(&s_Data.ModelBuffer, sizeof(RendererData::ModelData));
 
 		s_Data.MaterialUniformBuffer->SetData(&material->GetMaterialsParameters(), sizeof(MaterialParameters));
-		auto& shaderName = material->Handle;
-		if(shaderName != s_BindedShader)
-		{
-			material->Bind();
-			s_BindedShader = shaderName;
+
+		MaterialField mat = material->Handle;
+		VXM_CORE_ASSERT(mat, "The material ID({}) is not valid.", mat.GetHandle().string());
+		Ref<Material> matPtr = mat.GetAsset();
+		if(mat) {
+			s_Data.MaterialUniformBuffer->SetData(&matPtr->GetMaterialsParameters(), sizeof(MaterialParameters));
+			matPtr->Bind(false);
+			s_BindedMaterial = mat;
 		}
+
+		ShaderField shader = matPtr->GetShaderHandle();
+		VXM_CORE_ASSERT(shader, "The shader ID({}) from the material '{}' is not valid.", matPtr->GetMaterialName(), shader.GetHandle().string());
+		if (shader) {
+			shader.GetAsset()->Bind();
+			s_BindedShader = shader;
+		}
+
 		vertexArray->Bind();
 		RenderCommand::DrawIndexed(vertexArray);
 	}
@@ -172,15 +187,6 @@ namespace Voxymore::Core {
 			if(mesh) {
 				Submit(mesh.GetAsset(), transform, entityId);
 			}
-//			s_Data.MaterialUniformBuffer->SetData(&mesh->GetMaterial()->GetMaterialsParameters(), sizeof(MaterialParameters));
-//			mesh->Bind();
-//			auto& shaderName = mesh->GetMaterial()->GetShaderName();
-//			if(shaderName != s_BindedShader)
-//			{
-//				mesh->GetMaterial()->Bind();
-//				s_BindedShader = shaderName;
-//			}
-//			RenderCommand::DrawIndexed(mesh->GetVertexArray());
 		}
 	}
 
@@ -283,12 +289,22 @@ namespace Voxymore::Core {
 		s_Data.MaterialUniformBuffer->SetData(&material->GetMaterialsParameters(), sizeof(MaterialParameters));
 		s_Data.CurveParametersBuffer->SetData(&s_Data.CurveBuffer, sizeof(RendererData::CurveParameters));
 
-		mesh->Bind();
-		if(material->GetShaderHandle() != s_BindedShader)
-		{
-			material->Bind();
-			s_BindedShader = material->GetShaderHandle();
+		MaterialField mat = material->Handle;
+		VXM_CORE_ASSERT(mat, "The material ID({}) is not valid.", mat.GetHandle().string());
+		Ref<Material> matPtr = mat.GetAsset();
+		if(mat) {
+			s_Data.MaterialUniformBuffer->SetData(&matPtr->GetMaterialsParameters(), sizeof(MaterialParameters));
+			matPtr->Bind(false);
+			s_BindedMaterial = mat;
 		}
+
+		ShaderField shader = matPtr->GetShaderHandle();
+		VXM_CORE_ASSERT(shader, "The shader ID({}) from the material '{}' is not valid.", matPtr->GetMaterialName(), shader.GetHandle().string());
+		if (shader) {
+			shader.GetAsset()->Bind();
+			s_BindedShader = shader;
+		}
+		mesh->Bind();
 		RenderCommand::DrawPatches(vertices.size());
 	}
 
@@ -343,12 +359,23 @@ namespace Voxymore::Core {
 		s_Data.MaterialUniformBuffer->SetData(&material->GetMaterialsParameters(), sizeof(MaterialParameters));
 		s_Data.CurveParametersBuffer->SetData(&s_Data.CurveBuffer, sizeof(RendererData::CurveParameters));
 
-		mesh->Bind();
-		if(material->GetShaderHandle() != s_BindedShader)
-		{
-			material->Bind();
-			s_BindedShader = material->GetShaderHandle();
+		MaterialField mat = material->Handle;
+		VXM_CORE_ASSERT(mat, "The material ID({}) is not valid.", mat.GetHandle().string());
+		Ref<Material> matPtr = mat.GetAsset();
+		if(mat) {
+			s_Data.MaterialUniformBuffer->SetData(&matPtr->GetMaterialsParameters(), sizeof(MaterialParameters));
+			matPtr->Bind(false);
+			s_BindedMaterial = mat;
 		}
+
+		ShaderField shader = matPtr->GetShaderHandle();
+		VXM_CORE_ASSERT(shader, "The shader ID({}) from the material '{}' is not valid.", matPtr->GetMaterialName(), shader.GetHandle().string());
+		if (shader) {
+			shader.GetAsset()->Bind();
+			s_BindedShader = shader;
+		}
+
+		mesh->Bind();
 		RenderCommand::DrawPatches(vertices.size());
 	}
 
