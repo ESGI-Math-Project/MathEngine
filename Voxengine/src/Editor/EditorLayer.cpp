@@ -486,35 +486,30 @@ namespace Voxymore::Editor {
         return false;
     }
 
-    bool EditorLayer::OnMousePressed(MouseButtonPressedEvent& e)
-    {
-        bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
-        bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
-        bool alt = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
+	bool EditorLayer::OnMousePressed(MouseButtonPressedEvent& e)
+	{
+		bool control = Input::IsKeyPressed(Key::LeftControl) || Input::IsKeyPressed(Key::RightControl);
+		bool shift = Input::IsKeyPressed(Key::LeftShift) || Input::IsKeyPressed(Key::RightShift);
+		bool alt = Input::IsKeyPressed(Key::LeftAlt) || Input::IsKeyPressed(Key::RightAlt);
 
-        switch (e.GetMouseButton())
-        {
-            case Mouse::Left:
-            {
-				bool anyHovered = false;
-				for(auto ptr : m_Viewports) {
-					if (ptr->IsHovered()) {
-						anyHovered = true;
-						if (!ptr->HasHoveredEntity() && m_GizmoOperation == GizmoOperation::NONE) PropertyPanel::Reset();
-						else if (ptr->HasHoveredEntity() && !ImGuizmo::IsOver() && !ImGuizmo::IsUsingAny() && !control && !shift && !alt) {
-							PropertyPanel::SetSelectedEntity(ptr->GetHoveredEntity());
+		switch (e.GetMouseButton())
+		{
+			case Mouse::Left:
+			{
+				for(const auto& viewportPtr: m_Viewports) {
+					if (viewportPtr->IsHovered()) {
+						if (!viewportPtr->HasHoveredEntity() && m_GizmoOperation == GizmoOperation::NONE) PropertyPanel::Reset();
+						else if (viewportPtr->HasHoveredEntity() && !ImGuizmo::IsOver() && !ImGuizmo::IsUsingAny() && !control && !shift && !alt) {
+							PropertyPanel::SetSelectedEntity(viewportPtr->GetHoveredEntity());
 						}
 						break;
 					}
 				}
-				if(!anyHovered) {
-					PropertyPanel::Reset();
-				}
 				break;
-            }
-        }
-        return false;
-    }
+			}
+		}
+		return false;
+	}
 
     void EditorLayer::NewProject()
     {

@@ -11,6 +11,7 @@
 #include "Voxymore/Components/LightComponent.hpp"
 #include "Voxymore/Components/ModelComponent.hpp"
 #include "Voxymore/Components/PrimitiveComponent.hpp"
+#include "Voxymore/Components/ParametricSurfaceComponent.hpp"
 #include "Voxymore/Debug/Profiling.hpp"
 #include "Voxymore/Renderer/Renderer.hpp"
 #include "Voxymore/Scene/Entity.hpp"
@@ -299,6 +300,15 @@ namespace Voxymore::Core
 				if(!bspline.m_Material) continue;
 				std::vector<glm::vec3> controlPoints = bspline.GetWorldPoints(transform.GetTransform());
 				Renderer::Submit(bspline.m_Material.GetAsset(), bspline.m_Degree, controlPoints, bspline.m_Nodes, bspline.m_Weight, bspline.m_Definition, static_cast<int>(entity));
+			}
+
+			auto surfaceView = m_Registry.view<ParametricSurfaceComponent, TransformComponent>(entt::exclude<DisableComponent>);
+			for (auto entity: surfaceView) {
+				auto&& [surface, transform] = surfaceView.get<ParametricSurfaceComponent, TransformComponent>(entity);
+				if(!surface.Material) continue;
+				std::vector<glm::vec3> mainCurve = surface.GetMainCurveWorldPoints(transform.GetTransform());
+				std::vector<glm::vec3> profile = surface.GetProfileWorldPoints(transform.GetTransform());
+//				Renderer::Submit(surface.Material.GetAsset(), surface.MainCurveType, mainCurve, surface.ProfileType, profile, static_cast<int>(entity));
 			}
 
 			auto modelsView = m_Registry.view<ModelComponent, TransformComponent>(entt::exclude<DisableComponent>);

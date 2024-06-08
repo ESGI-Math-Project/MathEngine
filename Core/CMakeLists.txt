@@ -207,6 +207,10 @@ set(SRC_FILES src/Core/Application.cpp
         include/Voxymore/Components/BSplinesComponents.hpp
         include/Voxymore/Math/BezierCurve.hpp
         include/Voxymore/Components/HullComponent.hpp
+        src/Components/ParametricSurfaceComponent.cpp
+        include/Voxymore/Components/ParametricSurfaceComponent.hpp
+        src/Math/NURBS.cpp
+        include/Voxymore/Math/Nurbs.hpp
 )
 
 add_library(${LIBRARY_TARGET_NAME} STATIC ${SRC_FILES})

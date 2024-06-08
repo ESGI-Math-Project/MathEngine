@@ -41,7 +41,7 @@ namespace Voxymore::Core {
 		s_Data.CameraBuffer.CameraPosition = glm::vec4(camera.GetPosition(), 1);
 		s_Data.CameraBuffer.CameraDirection = glm::vec4(camera.GetForwardDirection(), 0);
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(RendererData::CameraData));
-		s_Data.LightBuffer.lightCount = std::min((int)lights.size(), MAX_LIGHT_COUNT);
+		s_Data.LightBuffer.lightCount = std::min((int)lights.size(), RendererData::MAX_LIGHT_COUNT);
 		for (size_t i = 0; i < s_Data.LightBuffer.lightCount; ++i)
 		{
 			s_Data.LightBuffer.lights[i] = lights[i];
@@ -62,7 +62,7 @@ namespace Voxymore::Core {
 		s_Data.CameraBuffer.CameraPosition = glm::vec4(glm::vec3(p) / p.w, 1);
 		s_Data.CameraBuffer.CameraDirection = transform * glm::vec4{0,0,1,0};
 		s_Data.CameraUniformBuffer->SetData(&s_Data.CameraBuffer, sizeof(RendererData::CameraData));
-		s_Data.LightBuffer.lightCount = std::min((int)lights.size(), MAX_LIGHT_COUNT);
+		s_Data.LightBuffer.lightCount = std::min((int)lights.size(), RendererData::MAX_LIGHT_COUNT);
 		for (size_t i = 0; i < s_Data.LightBuffer.lightCount; ++i)
 		{
 			s_Data.LightBuffer.lights[i] = lights[i];
@@ -257,17 +257,17 @@ namespace Voxymore::Core {
 	void Renderer::Submit(Ref<Material> material, const std::vector<glm::vec3>& bezierControlPoints, int lineDefinition, int entityId)
 	{
 		VXM_PROFILE_FUNCTION();
-		VXM_CORE_ASSERT(bezierControlPoints.size() <= s_Data.CurveBuffer.ControlPoints.size(), "The shader might won't support more than a {0} control point...", s_Data.CurveBuffer.ControlPoints.size());
+		VXM_CORE_ASSERT(bezierControlPoints.size() <= s_Data.CurveBuffer.CurveControlPoints.size(), "The shader might won't support more than a {0} control point...", s_Data.CurveBuffer.CurveControlPoints.size());
 
 
-		uint32_t count = std::min(s_Data.CurveBuffer.ControlPoints.size(), bezierControlPoints.size());
+		uint32_t count = std::min(s_Data.CurveBuffer.CurveControlPoints.size(), bezierControlPoints.size());
 
 		std::vector<Vertex> vertices((count/3) + (count%3 ? 1 : 0));
 
 		s_Data.CurveBuffer.NumberOfSegment = lineDefinition;
 		s_Data.CurveBuffer.NumberOfControlPoint = static_cast<int>(bezierControlPoints.size());
 		for (int i = 0; i < count; ++i) {
-			s_Data.CurveBuffer.ControlPoints[i] = glm::vec4(bezierControlPoints[i],1);
+			s_Data.CurveBuffer.CurveControlPoints[i] = glm::vec4(bezierControlPoints[i],1);
 			vertices[i/3].Position[i%3] = float(i);
 		}
 		std::vector<uint32_t> indices;
@@ -317,13 +317,13 @@ namespace Voxymore::Core {
 	void Renderer::Submit(Ref<Material> material, int degree, const std::vector<glm::vec3>& points, const std::vector<float>& nodes, const std::vector<float>& weights, int lineDefinition, int entityId)
 	{
 		VXM_PROFILE_FUNCTION();
-		VXM_CORE_ASSERT(points.size() <= s_Data.CurveBuffer.ControlPoints.size(), "The shader might won't support more than a {0} control point...", s_Data.CurveBuffer.ControlPoints.size());
-		VXM_CORE_ASSERT(nodes.size() <= s_Data.CurveBuffer.ControlPoints.size(), "The shader might won't support more than a {0} nodes...", s_Data.CurveBuffer.ControlPoints.size());
+		VXM_CORE_ASSERT(points.size() <= s_Data.CurveBuffer.CurveControlPoints.size(), "The shader might won't support more than a {0} control point...", s_Data.CurveBuffer.CurveControlPoints.size());
+		VXM_CORE_ASSERT(nodes.size() <= s_Data.CurveBuffer.CurveControlPoints.size(), "The shader might won't support more than a {0} nodes...", s_Data.CurveBuffer.CurveControlPoints.size());
 		VXM_CORE_ASSERT(points.size() == weights.size(), "The number of weight and the number of points should be equal.");
 		VXM_CORE_ASSERT(nodes.size() >= degree+1, "The number of nodes must be superior to {}.",degree+1);
 
-		uint32_t controlPointCount = std::min(s_Data.CurveBuffer.ControlPoints.size(), points.size());
-		uint32_t nodeCount = std::min(s_Data.CurveBuffer.ControlPoints.size(), nodes.size());
+		uint32_t controlPointCount = std::min(s_Data.CurveBuffer.CurveControlPoints.size(), points.size());
+		uint32_t nodeCount = std::min(s_Data.CurveBuffer.CurveControlPoints.size(), nodes.size());
 
 		std::vector<Vertex> vertices((nodeCount /3) + (nodeCount %3 ? 1 : 0));
 
@@ -332,8 +332,8 @@ namespace Voxymore::Core {
 		s_Data.CurveBuffer.NumberOfControlPoint = static_cast<int>(points.size());
 		s_Data.CurveBuffer.NumberOfKnot = static_cast<int>(nodeCount);
 		for (int i = 0; i < controlPointCount; ++i) {
-			s_Data.CurveBuffer.ControlPoints[i] = glm::vec4(points[i],1);
-			s_Data.CurveBuffer.Weigths[i] = weights[i];
+			s_Data.CurveBuffer.CurveControlPoints[i] = glm::vec4(points[i],1);
+			s_Data.CurveBuffer.CurveWeights[i] = weights[i];
 		}
 
 		for (int i = 0; i < nodeCount; ++i) {

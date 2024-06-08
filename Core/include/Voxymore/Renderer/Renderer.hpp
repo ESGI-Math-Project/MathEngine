@@ -18,13 +18,13 @@
 #include "Voxymore/Renderer/Light.hpp"
 #include <map>
 
-#define MAX_LIGHT_COUNT 20
-
-
 namespace Voxymore::Core {
 
 	struct RendererData
 	{
+		static constexpr const inline int NUM_CONTROL_POINTS_MAX = 48;
+		static constexpr const inline int MAX_LIGHT_COUNT = 20;
+
 		// TODO: Add Normal Matrix
 		// TODO: Add MVP Matrix
 		// Both Previous todo are to reduce the load on the GPU side.
@@ -56,8 +56,10 @@ namespace Voxymore::Core {
 		struct CurveParameters
 		{
 			// Using 96 as it's divisible by 4 so (31*3) round up to be a multiple of 4.
-			std::array<glm::vec4, 96> ControlPoints;
-			std::array<float, 96> Weigths;
+			std::array<glm::vec4, NUM_CONTROL_POINTS_MAX> CurveControlPoints;
+			std::array<float, NUM_CONTROL_POINTS_MAX> CurveWeights;
+			std::array<glm::vec4, NUM_CONTROL_POINTS_MAX> ProfileControlPoints;
+			std::array<float, NUM_CONTROL_POINTS_MAX> ProfileWeights;
 			int NumberOfSegment = 0;
 			int NumberOfControlPoint = 0;
 			int Degree = 0;
