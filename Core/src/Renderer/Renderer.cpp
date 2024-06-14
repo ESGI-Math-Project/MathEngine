@@ -438,10 +438,10 @@ namespace Voxymore::Core {
 //		}
 
 		std::vector<Vertex> vertices {{
-				Vertex{{-1, 0, -1}},
-				Vertex{{+1, 0, -1}},
-				Vertex{{+1, 0, +1}},
-				Vertex{{-1, 0, +1}},
+				Vertex{{-0, 0, -0}, {0 ,1 ,0}, {0, 0}},
+				Vertex{{+1, 0, -0}, {0 ,1 ,0}, {1, 0}},
+				Vertex{{+1, 0, +1}, {0 ,1 ,0}, {1, 1}},
+				Vertex{{-0, 0, +1}, {0 ,1 ,0}, {0, 1}},
 		}};
 
 		std::vector<uint32_t> indices {{

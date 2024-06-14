@@ -29,6 +29,11 @@ static constexpr const char* c_DefaultShader = R"(
 #define MAX_LIGHT_COUNT 20
 #define EPSILON 0.1
 
+
+// Using 48 as it's "16*3"
+// The first 16 control points are for the initial u factor and the later 16 point are for the v factor.
+#define NUM_CONTROL_POINTS_MAX 48
+
 struct TextureInfo
 {
     int Index;
@@ -65,7 +70,7 @@ struct MaterialParams
     OcclusionTextureInfo OcclusionTexture;
     TextureInfo EmissiveTexture;
     vec4 EmissiveFactor;
-    int AlphaMode; // Opaque = 0, Mask = 1, Blend = 2,
+    int AlphaMode;
     float AlphaCutoff;
     int DoubleSided;
 };
@@ -84,7 +89,6 @@ struct Light
 struct LightData
 {
     Light lights[MAX_LIGHT_COUNT];
-//    Light lights;
     int lightCount;
 };
 
@@ -114,18 +118,35 @@ layout(std140, binding = 3) uniform MaterialParameters
 
 layout(std140, binding = 4) uniform CurveParameters
 {
-    vec4 u_ControlPoints[NUM_CONTROL_POINTS_MAX];
+    vec4 u_CurveControlPoints[NUM_CONTROL_POINTS_MAX];
+    vec4 u_CurveWeights[NUM_CONTROL_POINTS_MAX/4];
+
+    vec4 u_ProfileControlPoints[NUM_CONTROL_POINTS_MAX];
+    vec4 u_ProfileWeights[NUM_CONTROL_POINTS_MAX/4];
+
     int u_NumberOfSegment;
-    int u_NumberControlPoint; // 4 by default.
+
+    int u_CurveNumberControlPoint; // 4 by default.
+    int u_CurveDegree; // min should be 1
+
+    int u_ProfileNumberControlPoint; // 4 by default.
+    int u_ProfileDegree; // min should be 1
+
+    int u_MainCurveType; // 0 = Polygon / 1 = Bezier
+    int u_ProfileType; // 0 = Polygon / 1 = Bezier
 };
 
-vec3 GetControlPoint(int i)
-{
-    i = min(i, NUM_CONTROL_POINTS_MAX);
-    int index = int(gl_in[i/4].gl_Position[i%4]);
-    return u_ControlPoints[index].xyz;
-}
+layout(location = 0) in vec3 a_Position;
+layout(location = 1) in vec3 a_Normal;
+layout(location = 2) in vec2 a_TexCoord;
+layout(location = 3) in vec4 a_Color;
 
+
+layout (location = 0) out vec3 v_Position;
+layout (location = 1) out vec3 v_Normal;
+layout (location = 2) out vec2 v_TexCoord;
+layout (location = 3) out vec4 v_Color;
+layout (location = 4) out flat int v_EntityId;
 
 void main() {
 
@@ -196,11 +217,9 @@ namespace Voxymore::Editor
 			s_ThumbnailSize = m_ThumbnailSize;
 		}
 
-		/*
-		if(ImGui::SliderFloat("Padding", &m_Padding, 0, 32)) {
+		/* if(ImGui::SliderFloat("Padding", &m_Padding, 0, 32)) {
 			s_Padding = m_Padding;
-		}
-		 */
+		}*/
 
 		float ratio = (m_ThumbnailSize - c_ThumbnailSizeMin) / (c_ThumbnailSizeMax - c_ThumbnailSizeMin);
 		float originalFontScale = ImGuiLib::GetWindowFontScale();
