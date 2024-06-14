@@ -412,7 +412,7 @@ namespace Voxymore::Core
 			std::string filename = sourcePath.filename().string();
 
 			// Fetch the hash of the source.
-			std::string sourceStr = source.GetAsset()->Source;
+			std::string sourceStr = source.GetAsset()->GetString();
 			std::string sourceHash = Utils::HashSrc(sourceStr);
 
 			Path hashPath = GetCachePath(stage, Target::HashVulkan);
@@ -668,7 +668,7 @@ namespace Voxymore::Core
 		for(auto& src : sources)
 		{
 			if(src.HasHandle()) {
-				m_Sources.insert_or_assign(src.GetAsset()->Type, src);
+				m_Sources.insert_or_assign(src.GetAsset()->GetShaderType(), src);
 			}
 		}
 

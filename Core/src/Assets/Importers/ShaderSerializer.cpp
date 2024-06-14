@@ -21,7 +21,7 @@ namespace Voxymore::Core
 		return path.has_extension() && std::find(Extensions.begin(), Extensions.end(), extension) != Extensions.end();
 	}
 
-	Ref<Asset> ShaderSerializer::ImportShaderSource(const AssetMetadata &metadata)
+	Ref<Asset> ShaderSerializer::ImportEditorShaderSource(const AssetMetadata &metadata)
 	{
 		VXM_PROFILE_FUNCTION();
 		auto path = metadata.FilePath.GetFullPath();
@@ -33,7 +33,7 @@ namespace Voxymore::Core
 		auto metaFilePath = metadata.FilePath;
 		metaFilePath.path += ".meta";
 
-		Ref<ShaderSource> source;
+		Ref<EditorShaderSource> source = nullptr;
 		ShaderType type = ShaderType::None;
 
 		if(FileSystem::Exist(metaFilePath))
@@ -43,14 +43,14 @@ namespace Voxymore::Core
 			if (node)
 			{
 				type = Utils::ShaderTypeFromString(node.as<std::string>());
-				source = CreateRef<ShaderSource>();
+				source = CreateRef<EditorShaderSource>();
 				source->Type = type;
 			}
 		}
 
 		if(!source)
 		{
-			source = CreateRef<ShaderSource>();
+			source = CreateRef<EditorShaderSource>();
 			if (extension == ".compute" || extension == ".comp" || extension == ".cs") {
 				type = ShaderType::COMPUTE_SHADER;
 			}
@@ -72,7 +72,6 @@ namespace Voxymore::Core
 			source->Type = type;
 		}
 
-		source->Source = FileSystem::ReadFileAsString(metadata.FilePath);
 		return source;
 	}
 
@@ -88,7 +87,7 @@ namespace Voxymore::Core
 			out << KEYVAL("Type", AssetTypeToString(AssetType::ShaderSource));
 			out << KEYVAL("ShaderSource", YAML::BeginMap);
 			{
-				out << KEYVAL("ShaderType", Utils::ShaderTypeToString(source->Type));
+				out << KEYVAL("ShaderType", Utils::ShaderTypeToString(source->GetShaderType()));
 			}
 			out << YAML::EndMap;
 		}

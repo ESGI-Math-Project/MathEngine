@@ -6,6 +6,7 @@
 
 #include "Voxymore/Assets/ImGui/ShaderImGui.hpp"
 #include "Voxymore/Assets/Importers/ShaderSerializer.hpp"
+#include <algorithm>
 
 namespace Voxymore::Core
 {
@@ -36,10 +37,84 @@ namespace Voxymore::Core
 
 		return changed;
 	}
+
 	bool ShaderImGui::OnShaderSourceImGui(Ref<Asset> asset)
 	{
 		if(asset->GetType() != ShaderSource::GetStaticType()) return false;
 		Ref<ShaderSource> shaderSource = CastPtr<ShaderSource>(asset);
+		Ref<EditorShaderSource> editorSource = std::dynamic_pointer_cast<EditorShaderSource>(shaderSource);
+		if(editorSource) {
+			return OnEditorShaderSourceImGui(editorSource);
+		} else {
+			Ref<RuntimeShaderSource> runtimeSource = std::dynamic_pointer_cast<RuntimeShaderSource>(shaderSource);
+			if(runtimeSource) {
+				return OnRuntimeShaderSourceImGui(runtimeSource);
+			}
+		}
+		return false;
+	}
+
+	bool ShaderImGui::OnShaderImGui(Ref<Asset> asset)
+	{
+		if(asset->GetType() != Shader::GetStaticType()) return false;
+		Ref<Shader> shader = CastPtr<Shader>(asset);
+		bool changed = false;
+		std::string name = shader->GetName();
+
+		if(ImGuiLib::InputText("Name", &name)) {
+			shader->SetName(name);
+		}
+
+		if(ImGui::CollapsingHeader("Sources")) {
+			bool shaderSourcesChanged = false;
+			std::array<ShaderSourceField, 7> src;
+
+			std::vector<ShaderSourceField> sources = shader->GetSources();
+
+			for (uint8_t i = 1; i < ShaderTypeCount + 1; ++i) {
+				auto it = std::find_if(sources.begin(), sources.end(), [i](const ShaderSourceField& src) {return src.IsValid() && src.GetAsset()->GetShaderType() == (ShaderType)i;});
+				if(it != sources.end()) src[i] = *it;
+				else src[i] = NullAssetHandle;
+			}
+
+
+			uint32_t num = 0;
+			for (uint8_t i = 1; i < ShaderTypeCount + 1; ++i)
+			{
+				auto s = src[i];
+				if(ImGuiLib::DrawAssetField(Utils::ShaderTypeToStringBeautify((ShaderType)i).c_str(), &s))
+				{
+					if(!s || s.GetAsset()->GetShaderType() == (ShaderType)i) {
+						src[i] = s;
+						shaderSourcesChanged = true;
+					}
+				}
+			}
+
+			if(shaderSourcesChanged) {
+				sources.clear();
+				sources.reserve(ShaderTypeCount);
+				sources.insert(sources.end(), src.begin() + 1, src.end());
+
+				changed = true;
+				shader->SetSources(sources);
+			}
+		}
+
+		if(ImGui::Button("Reload")) {
+			shader->Reload();
+		}
+
+		if(ImGui::Button("Save")) {
+			auto assetManager = Project::GetActive()->GetEditorAssetManager();
+			ShaderSerializer::ExportEditorShader(assetManager->GetMetadata(shader->Handle), shader);
+		}
+
+		return changed;
+	}
+
+	bool ShaderImGui::OnRuntimeShaderSourceImGui(Ref<RuntimeShaderSource> shaderSource)
+	{
 		bool changed = false;
 
 		if(ShaderTypeCombo("Shader Type", &shaderSource->Type))
@@ -71,38 +146,40 @@ namespace Voxymore::Core
 		return changed;
 	}
 
-	bool ShaderImGui::OnShaderImGui(Ref<Asset> asset)
+	bool ShaderImGui::OnEditorShaderSourceImGui(Ref<EditorShaderSource> shaderSource)
 	{
-		if(asset->GetType() != Shader::GetStaticType()) return false;
-		Ref<Shader> shader = CastPtr<Shader>(asset);
 		bool changed = false;
-		std::string name = shader->GetName();
 
-		if(ImGuiLib::InputText("Name", &name)) {
-			shader->SetName(name);
+		if(ShaderTypeCombo("Shader Type", &shaderSource->Type))
+		{
+			ShaderSerializer::ExportEditorShaderSource(Project::GetActive()->GetEditorAssetManager()->GetMetadata(shaderSource->Handle), shaderSource);
 		}
 
-		if(ImGui::CollapsingHeader("Sources")) {
-			bool shaderSourcesChanged = false;
-			std::vector<ShaderSourceField> sources = shader->GetSources();
-			sources.resize(std::max(sources.size(), (size_t)ShaderTypeCount));
-			uint32_t num = 0;
-			for (auto &source: sources) {
-				shaderSourcesChanged |= ImGuiLib::DrawAssetField(std::string("##"+std::to_string(num++)).c_str(), &source);
-			}
-			if(shaderSourcesChanged) {
-				changed = true;
-				shader->SetSources(sources);
-			}
+		if(shaderSource->NeedUpdate())
+		{
+			changed = true;
+			shaderSource->Reload();
 		}
 
-		if(ImGui::Button("Reload")) {
-			shader->Reload();
+		shaderSource->UpdateSourceIfNeeded();
+
+		if(ImGui::CollapsingHeader("Sources"))
+		{
+			changed |= ImGuiLib::InputTextMultiline("##ShaderSource", &(shaderSource->m_Source), ImVec2(-1.0f, ImGui::GetTextLineHeight() * 16), ImGuiInputTextFlags_AllowTabInput);
 		}
 
-		if(ImGui::Button("Save")) {
+		if (ImGui::Button("Save")) {
 			auto assetManager = Project::GetActive()->GetEditorAssetManager();
-			ShaderSerializer::ExportEditorShader(assetManager->GetMetadata(shader->Handle), shader);
+			auto path = assetManager->GetFilePath(shaderSource->Handle);
+			FileSystem::Write(path, shaderSource->m_Source.c_str(), shaderSource->m_Source.size());
+			shaderSource->m_Ftt	= std::filesystem::last_write_time(path);
+		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Reload")) {
+			shaderSource->Reload();
+			changed = true;
 		}
 
 		return changed;

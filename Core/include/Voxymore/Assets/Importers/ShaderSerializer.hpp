@@ -20,7 +20,7 @@ namespace Voxymore::Core
 	{
 	public:
 		static bool IsShaderSource(const std::filesystem::path& path);
-		static Ref<Asset> ImportShaderSource(const AssetMetadata& metadata);
+		static Ref<Asset> ImportEditorShaderSource(const AssetMetadata& metadata);
 		static void ExportEditorShaderSource(const AssetMetadata& metadata, Ref<ShaderSource> source);
 
 		static bool IsShader(const std::filesystem::path& path);

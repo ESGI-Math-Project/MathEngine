@@ -21,6 +21,9 @@ namespace Voxymore::Core
 		static bool OnShaderSourceImGui(Ref<Asset> asset);
 
 		static bool OnShaderImGui(Ref<Asset> asset);
+	private:
+		static bool OnRuntimeShaderSourceImGui(Ref<RuntimeShaderSource> asset);
+		static bool OnEditorShaderSourceImGui(Ref<EditorShaderSource> asset);
 	};
 
 } // namespace Voxymore::Core

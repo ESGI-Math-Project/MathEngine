@@ -16,7 +16,7 @@ namespace Voxymore::Core
 			{AssetType::Texture2D, TextureImporter::ImportTexture2D},
 			//			{AssetType::CubeMap, TextureImGui::ImportCubeMap},
 			{AssetType::Shader, ShaderSerializer::ImportShader},
-			{AssetType::ShaderSource, ShaderSerializer::ImportShaderSource},
+			{AssetType::ShaderSource, ShaderSerializer::ImportEditorShaderSource},
 //			{AssetType::Mesh, MeshSerializer::ImportMesh},
 			{AssetType::Scene, SceneImporter::ImportScene},
 			{AssetType::Material, MaterialSerializer::ImportMaterial},

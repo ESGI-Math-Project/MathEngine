@@ -23,6 +23,8 @@
 
 namespace Voxymore::Core {
 
+	class ShaderImGui;
+
     enum class ShaderDataType {
         None = 0,
         Float,
@@ -163,7 +165,7 @@ namespace Voxymore::Core {
         GEOMETRY_SHADER,
         FRAGMENT_SHADER,
     };
-    static const int ShaderTypeCount = 6;
+    static constexpr const uint8_t ShaderTypeCount = 6;
 
 
 	namespace Utils {
@@ -196,6 +198,35 @@ namespace Voxymore::Core {
 			}
 			return "__TYPE_UNKNOWN__";
 		}
+		inline static std::string ShaderTypeToStringBeautify(ShaderType shaderType)
+		{
+			VXM_PROFILE_FUNCTION();
+
+			switch (shaderType) {
+				case ShaderType::COMPUTE_SHADER:
+					return "Compute Shader";
+					break;
+				case ShaderType::VERTEX_SHADER:
+					return "Vertex Shader";
+					break;
+				case ShaderType::TESS_CONTROL_SHADER:
+					return "Tessellation Control Shader";
+					break;
+				case ShaderType::TESS_EVALUATION_SHADER:
+					return "Tessellation Evaluation Shader";
+					break;
+				case ShaderType::GEOMETRY_SHADER:
+					return "Geometry Shader";
+					break;
+				case ShaderType::FRAGMENT_SHADER:
+					return "Fragment Shader";
+					break;
+				case ShaderType::None: break;
+					return "None";
+					break;
+			}
+			return "Unknown";
+		}
 		inline static ShaderType ShaderTypeFromString(std::string type)
 		{
 			VXM_PROFILE_FUNCTION();
@@ -219,19 +250,54 @@ namespace Voxymore::Core {
 
 	struct ShaderSource : public Asset
 	{
+	public:
 		VXM_IMPLEMENT_ASSET(AssetType::ShaderSource);
 
-		inline ShaderSource() = default;
-		inline ~ShaderSource() = default;
-		ShaderSource(ShaderType type);
-		ShaderSource(std::string source);
-		ShaderSource(ShaderType type, std::string source);
+		virtual ~ShaderSource() = default;
+
+		virtual ShaderType GetShaderType() const = 0;
+		virtual const char* GetRawString() = 0;
+		virtual std::string GetString() = 0;
+	};
+
+	struct RuntimeShaderSource : public ShaderSource
+	{
+
+		inline RuntimeShaderSource() = default;
+		inline virtual ~RuntimeShaderSource() override = default;
+
+		RuntimeShaderSource(ShaderType type);
+		RuntimeShaderSource(std::string source);
+		RuntimeShaderSource(ShaderType type, std::string source);
 
 		std::string Source;
-		ShaderType Type;
+		ShaderType Type = ShaderType::None;
 
-		inline const char* GetRawString() const {return Source.c_str();}
-		inline std::string GetString() const {return GetRawString();}
+		virtual ShaderType GetShaderType() const override {return Type; };
+		virtual const char* GetRawString() override {return Source.c_str();}
+		virtual std::string GetString() override {return Source;}
+	};
+
+	struct EditorShaderSource : public ShaderSource
+	{
+		friend class ShaderImGui;
+
+		inline EditorShaderSource() = default;
+		inline virtual ~EditorShaderSource() override = default;
+		EditorShaderSource(ShaderType type);
+
+		virtual ShaderType GetShaderType() const override {return Type; };
+		virtual const char* GetRawString() override;
+		virtual std::string GetString() override;
+
+		ShaderType Type = ShaderType::None;
+	private:
+		bool NeedUpdate();
+		void UpdateSourceIfNeeded();
+		void Reload();
+	private:
+		std::filesystem::file_time_type m_Ftt = std::filesystem::file_time_type();
+		std::string m_Source;
 	};
 
 	using ShaderSourceField = AssetField<ShaderSource>;

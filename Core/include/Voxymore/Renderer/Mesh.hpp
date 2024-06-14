@@ -31,12 +31,12 @@ namespace Voxymore::Core
 	{
 		glm::vec3 Position;
 		glm::vec3 Normal;
-		glm::vec2 TexCoord; //TODO: Add other TexCoords (optionnal)
+		glm::vec2 TexCoord; //TODO: Add other TexCoords (optional)
 		glm::vec4 Color = glm::vec4(1.0f);
 		//TODO: Add Material ID.
 		inline Vertex() = default;
 		inline ~Vertex() = default;
-		Vertex(glm::vec3 position, glm::vec3 normal, glm::vec2 texCoord, glm::vec4 color = glm::vec4(1.0f));
+		Vertex(glm::vec3 position, glm::vec3 normal = glm::vec3{0,1,0}, glm::vec2 texCoord = glm::vec2{0,0}, glm::vec4 color = glm::vec4(1.0f));
 
 		inline static BufferLayout Layout()
 		{
