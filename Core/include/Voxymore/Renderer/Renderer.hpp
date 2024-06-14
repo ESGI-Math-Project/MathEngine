@@ -6,6 +6,7 @@
 
 #include "Mesh.hpp"
 #include "Voxymore/Core/Core.hpp"
+#include "Voxymore/Math/CurveParams.hpp"
 #include "Voxymore/Renderer/Camera.hpp"
 #include "Voxymore/Renderer/EditorCamera.hpp"
 #include "Voxymore/Renderer/Material.hpp"
@@ -58,12 +59,22 @@ namespace Voxymore::Core {
 			// Using 96 as it's divisible by 4 so (31*3) round up to be a multiple of 4.
 			std::array<glm::vec4, NUM_CONTROL_POINTS_MAX> CurveControlPoints;
 			std::array<float, NUM_CONTROL_POINTS_MAX> CurveWeights;
+
 			std::array<glm::vec4, NUM_CONTROL_POINTS_MAX> ProfileControlPoints;
 			std::array<float, NUM_CONTROL_POINTS_MAX> ProfileWeights;
+
 			int NumberOfSegment = 0;
-			int NumberOfControlPoint = 0;
-			int Degree = 0;
-			int NumberOfKnot = 0;
+
+			int MainCurveNumberOfControlPoint = 0;
+			int MainCurveDegree = 0;
+
+			int ProfileNumberOfControlPoint = 0;
+			int ProfileDegree = 0;
+
+			int MainCurveType = 0;
+			int ProfileType = 0;
+
+			int MainCurveNumberOfKnot = 0;
 		};
 
 		CameraData CameraBuffer;
@@ -105,6 +116,9 @@ namespace Voxymore::Core {
 		static void Submit(Ref<Material> material, const std::vector<glm::vec3>& bezierControlPoints, int lineDefintion = 1000, int entityId = -1);
 		static void Submit(Ref<Material> material, const glm::vec3& controlPoint0, const glm::vec3& controlPoint1, const glm::vec3& controlPoint2, const glm::vec3& controlPoint3, int lineDefintion = 1000, int entityId = -1);
 		static void Submit(Ref<Material> material, int degree, const std::vector<glm::vec3>& points, const std::vector<float>& nodes, const std::vector<float>& weights, int lineDefinition = 1000, int entityId = -1);
+
+
+		static void Submit(Ref<Material> material, const CurveParams& mainCurve, const CurveParams& profileCurve, int lineDefinition = 1000, int entityId = -1);
 
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 	private:

@@ -211,6 +211,8 @@ set(SRC_FILES src/Core/Application.cpp
         include/Voxymore/Components/ParametricSurfaceComponent.hpp
         src/Math/NURBS.cpp
         include/Voxymore/Math/Nurbs.hpp
+        include/Voxymore/Math/CurveParams.hpp
+        src/Math/CurveParams.cpp
 )
 
 add_library(${LIBRARY_TARGET_NAME} STATIC ${SRC_FILES})

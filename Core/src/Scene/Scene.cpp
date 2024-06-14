@@ -306,9 +306,8 @@ namespace Voxymore::Core
 			for (auto entity: surfaceView) {
 				auto&& [surface, transform] = surfaceView.get<ParametricSurfaceComponent, TransformComponent>(entity);
 				if(!surface.Material) continue;
-				std::vector<glm::vec3> mainCurve = surface.GetMainCurveWorldPoints(transform.GetTransform());
-				std::vector<glm::vec3> profile = surface.GetProfileWorldPoints(transform.GetTransform());
-//				Renderer::Submit(surface.Material.GetAsset(), surface.MainCurveType, mainCurve, surface.ProfileType, profile, static_cast<int>(entity));
+				auto trs = transform.GetTransform();
+				Renderer::Submit(surface.Material.GetAsset(),surface.GetMainCurveParams(trs), surface.GetProfileCurveParams(trs), surface.Definition, static_cast<int>(entity));
 			}
 
 			auto modelsView = m_Registry.view<ModelComponent, TransformComponent>(entt::exclude<DisableComponent>);

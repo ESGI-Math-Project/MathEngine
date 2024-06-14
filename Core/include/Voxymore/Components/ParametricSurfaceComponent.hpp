@@ -11,6 +11,7 @@
 #include "Voxymore/Math/Math.hpp"
 #include "Voxymore/Math/BezierCurve.hpp"
 #include "Voxymore/Math/Nurbs.hpp"
+#include "Voxymore/Math/CurveParams.hpp"
 #include <variant>
 
 namespace Voxymore::Core
@@ -20,22 +21,19 @@ namespace Voxymore::Core
 	{
 		VXM_IMPLEMENT_NAME(ParametricSurfaceComponent);
 	public:
-		enum class CurveType : uint8_t {
-			Polygon,
-			Bezier,
-			Nurbs,
-		};
+
 		static constexpr const inline unsigned int CurveTypeCount = 3;
-		static std::string CurveToString(CurveType curve);
-		static CurveType CurveFromString(const std::string& curve);
 	public:
 		void DeserializeComponent(YAML::Node& node, Entity e);
 		void SerializeComponent(YAML::Emitter& out, Entity e);
 		bool OnImGuiRender(Entity e);
 		bool OnImGuizmo(Entity e, const float* viewMatrix, const float* projectionMatrix);
 	public:
-		std::vector<glm::vec3> GetMainCurveWorldPoints(const glm::mat4& localToWorld);
-		std::vector<glm::vec3> GetProfileWorldPoints(const glm::mat4& localToWorld);
+		std::vector<glm::vec3> GetMainCurveWorldPoints(const glm::mat4& localToWorld) const;
+		std::vector<glm::vec3> GetProfileWorldPoints(const glm::mat4& localToWorld) const;
+
+		CurveParams GetMainCurveParams(const glm::mat4& localToWorld) const;
+		CurveParams GetProfileCurveParams(const glm::mat4& localToWorld) const;
 	public:
 		MaterialField Material;
 		int Definition = 100;
@@ -54,6 +52,9 @@ namespace Voxymore::Core
 		static bool ImGuiBezierCurve(const std::string& name, std::vector<glm::vec3>& curve, int& degree);
 		static bool ImGuiNurbsCurve(const std::string& name, std::vector<glm::vec3>& curve, std::vector<float>& weights);
 		static bool ImGuiCurveTypeCombo(const std::string& name, CurveType& curve);
+
+		bool DrawMainCurveGizmos(Entity e, const float* viewMatrix, const float* projectionMatrix);
+		bool DrawProfileCurveGizmos(Entity e, const float* viewMatrix, const float* projectionMatrix);
 
 		template<typename T>
 		static void DeserializeVector(YAML::Node sequenceNode, std::vector<T>& vector, const T& defaultValue)
@@ -82,7 +83,15 @@ namespace Voxymore::Core
 			}
 			out << YAML::EndSeq;
 		}
-
+	private:
+		enum class ControlledGizmos : uint8_t
+		{
+			None,
+			MainCurve,
+			ProfileCurve,
+			Both,
+		};
+		ControlledGizmos m_ControlledGizmos = ControlledGizmos::None;
 	};
 
 	VXM_CREATE_COMPONENT(ParametricSurfaceComponent);
