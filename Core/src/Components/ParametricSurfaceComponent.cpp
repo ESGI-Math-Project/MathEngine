@@ -269,7 +269,7 @@ namespace Voxymore::Core
 		bool changed = false;
 		glm::mat4 selfMat = e.GetComponent<TransformComponent>().GetTransform();
 		glm::mat4 matrix;
-		ImGuizmo::PushID("MainCurve");
+		ImGuizmo::PushID("Profile");
 		for (int i = 0; i < Profile.size(); ++i) {
 			matrix = glm::translate(Math::TransformPoint(selfMat,Profile[i]));
 			ImGuizmo::PushID(i);
