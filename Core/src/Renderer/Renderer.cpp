@@ -399,9 +399,11 @@ namespace Voxymore::Core {
 
 		s_Data.CurveBuffer.NumberOfSegment = lineDefinition;
 
+		s_Data.CurveBuffer.MainCurveType = (int)mainCurve.Type;
 		s_Data.CurveBuffer.MainCurveNumberOfControlPoint = mainPointCount;
 		s_Data.CurveBuffer.MainCurveDegree = mainCurve.Degree;
 
+		s_Data.CurveBuffer.ProfileType = (int)profileCurve.Type;
 		s_Data.CurveBuffer.ProfileNumberOfControlPoint = profilePointCount;
 		s_Data.CurveBuffer.ProfileDegree = profileCurve.Degree;
 
