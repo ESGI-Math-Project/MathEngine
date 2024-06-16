@@ -92,5 +92,15 @@ namespace Voxymore {
 			glPatchParameteri(GL_PATCH_VERTICES, verticesPerPatch);
 		}
 
+
+		void OpenGLRenderAPI::EnableWireframe(bool enable)
+		{
+			if(enable) {
+				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+			} else {
+				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+			}
+		}
+
 	} // Voxymore
 } // Core

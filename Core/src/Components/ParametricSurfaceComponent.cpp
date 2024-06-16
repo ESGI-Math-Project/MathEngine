@@ -113,6 +113,34 @@ namespace Voxymore::Core
 		}
 		ImGui::PopID();
 
+		if(ImGui::CollapsingHeader("Tesselation Control"))
+		{
+			ImGui::Checkbox("Use Simple Version", &useSimpleTessco);
+
+			if(useSimpleTessco)
+			{
+				if(ImGui::SliderFloat("Definition", &simpleTesscoParams, 1, 64))
+				{
+					TesscoParams.OuterLeft = simpleTesscoParams;
+					TesscoParams.OuterBottom = simpleTesscoParams;
+					TesscoParams.OuterRight = simpleTesscoParams;
+					TesscoParams.OuterTop = simpleTesscoParams;
+					TesscoParams.InnerLeftRight = simpleTesscoParams;
+					TesscoParams.InnerTopBottom = simpleTesscoParams;
+					changed = true;
+				}
+			}
+			else {
+				changed |= ImGui::SliderFloat("Outer Left", &TesscoParams.OuterLeft, 1, 64);
+				changed |= ImGui::SliderFloat("Outer Bottom", &TesscoParams.OuterBottom, 1, 64);
+				changed |= ImGui::SliderFloat("Outer Right", &TesscoParams.OuterRight, 1, 64);
+				changed |= ImGui::SliderFloat("Outer Top", &TesscoParams.OuterTop, 1, 64);
+				ImGui::Spacing();
+				changed |= ImGui::SliderFloat("Inner Left Right", &TesscoParams.InnerLeftRight, 1, 64);
+				changed |= ImGui::SliderFloat("Inner Top Bottom", &TesscoParams.InnerTopBottom, 1, 64);
+			}
+		}
+
 		return changed;
 	}
 

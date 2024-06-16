@@ -16,6 +16,11 @@ namespace Voxymore::Core
 		virtual ~UniformBuffer() {}
 		virtual void SetData(const void* data, uint32_t size, uint32_t offset = 0) = 0;
 
+		template<typename T>
+		void SetData(const T* data) {
+			SetData((const void*) data, sizeof(T));
+		}
+
 		static Ref<UniformBuffer> Create(uint32_t size, uint32_t binding);
 	};
 

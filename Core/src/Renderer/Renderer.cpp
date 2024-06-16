@@ -20,6 +20,7 @@ namespace Voxymore::Core {
 		s_Data.LightUniformBuffer = UniformBuffer::Create(sizeof(RendererData::LightData), 2);
 		s_Data.MaterialUniformBuffer = UniformBuffer::Create(sizeof(MaterialParameters), 3);
 		s_Data.CurveParametersBuffer = UniformBuffer::Create(sizeof(RendererData::CurveParameters), 4);
+		s_Data.TessCoParametersBuffer = UniformBuffer::Create(sizeof(RendererData::TesselationControlParams), 5);
 
 		RenderCommand::Init();
 	}
@@ -379,7 +380,7 @@ namespace Voxymore::Core {
 		RenderCommand::DrawPatches(vertices.size());
 	}
 
-	void Renderer::Submit(Ref<Material> material, const CurveParams &mainCurve, const CurveParams &profileCurve, int lineDefinition, int entityId)
+	void Renderer::Submit(Ref<Material> material, const CurveParams &mainCurve, const CurveParams &profileCurve, int lineDefinition, int entityId, const RendererData::TesselationControlParams& tessco)
 	{
 		VXM_PROFILE_FUNCTION();
 		// VXM_CORE_ASSERT(mainCurve.Points.size() <= s_Data.CurveBuffer.CurveControlPoints.size(), "The shader might won't support more than a {0} control point...", s_Data.CurveBuffer.CurveControlPoints.size());
@@ -461,6 +462,9 @@ namespace Voxymore::Core {
 		s_Data.ModelUniformBuffer->SetData(&s_Data.ModelBuffer, sizeof(RendererData::ModelData));
 		s_Data.MaterialUniformBuffer->SetData(&material->GetMaterialsParameters(), sizeof(MaterialParameters));
 		s_Data.CurveParametersBuffer->SetData(&s_Data.CurveBuffer, sizeof(RendererData::CurveParameters));
+
+		s_Data.TessCoBuffer = tessco;
+		s_Data.TessCoParametersBuffer->SetData(&s_Data.TessCoBuffer);
 
 		MaterialField mat = material->Handle;
 		VXM_CORE_ASSERT(mat, "The material ID({}) is not valid.", mat.GetHandle().string());

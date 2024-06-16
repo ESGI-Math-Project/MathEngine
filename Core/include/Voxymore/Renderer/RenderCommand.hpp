@@ -54,6 +54,11 @@ namespace Voxymore::Core {
 			VXM_PROFILE_FUNCTION();
 			s_RendererAPI->UnbindTexture(slot);
 		}
+
+		inline static void EnableWireframe(bool enable) {
+			VXM_PROFILE_FUNCTION();
+			s_RendererAPI->EnableWireframe(enable);
+		}
     private:
         static RendererAPI* s_RendererAPI;
     };

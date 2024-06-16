@@ -307,7 +307,7 @@ namespace Voxymore::Core
 				auto&& [surface, transform] = surfaceView.get<ParametricSurfaceComponent, TransformComponent>(entity);
 				if(!surface.Material) continue;
 				auto trs = transform.GetTransform();
-				Renderer::Submit(surface.Material.GetAsset(),surface.GetMainCurveParams(trs), surface.GetProfileCurveParams(trs), surface.Definition, static_cast<int>(entity));
+				Renderer::Submit(surface.Material.GetAsset(),surface.GetMainCurveParams(trs), surface.GetProfileCurveParams(trs), surface.Definition, static_cast<int>(entity), surface.TesscoParams);
 			}
 
 			auto modelsView = m_Registry.view<ModelComponent, TransformComponent>(entt::exclude<DisableComponent>);

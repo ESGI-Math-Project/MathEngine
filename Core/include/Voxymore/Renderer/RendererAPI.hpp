@@ -38,6 +38,7 @@ namespace Voxymore::Core {
 		virtual void DrawIndexed(DrawMode drawMode, const Ref<VertexArray>& vertexArray) = 0;
 
 		virtual void DrawPatches(uint32_t verticesPerPatch) = 0;
+		virtual void EnableWireframe(bool enable) = 0;
 
 		inline static API GetAPI() { return s_API; }
 	private:

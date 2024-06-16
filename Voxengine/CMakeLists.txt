@@ -28,6 +28,8 @@ add_executable(Voxengine
         include/Voxymore/Editor/Panels/AssetManagerPanel.hpp
         src/HullToCurve.cpp
         include/TestSystems/HullToCurve.hpp
+        src/Editor/Panels/RenderParameterPanel.cpp
+        include/Voxymore/Editor/Panels/RenderParameterPanel.hpp
 )
 
 set(CMAKE_CXX_STANDARD 20)

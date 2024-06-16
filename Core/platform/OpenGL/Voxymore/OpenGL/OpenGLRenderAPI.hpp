@@ -21,6 +21,7 @@ namespace Voxymore::Core {
 
             virtual void DrawIndexed(const Ref<VertexArray>& vertexArray) override;
 			virtual void DrawIndexed(DrawMode drawMode, const Ref<VertexArray>& vertexArray) override;
+			virtual void EnableWireframe(bool enable) override;
 
 			// TODO? add a starting index
 			virtual void DrawPatches(uint32_t verticesPerPatch) override;

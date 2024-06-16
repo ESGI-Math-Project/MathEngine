@@ -6,12 +6,13 @@
 
 
 #include "CustomComponent.hpp"
-#include "Voxymore/Renderer/Material.hpp"
 #include "Voxymore/Core/Core.hpp"
-#include "Voxymore/Math/Math.hpp"
 #include "Voxymore/Math/BezierCurve.hpp"
-#include "Voxymore/Math/Nurbs.hpp"
 #include "Voxymore/Math/CurveParams.hpp"
+#include "Voxymore/Math/Math.hpp"
+#include "Voxymore/Math/Nurbs.hpp"
+#include "Voxymore/Renderer/Material.hpp"
+#include "Voxymore/Renderer/Renderer.hpp"
 #include <variant>
 
 namespace Voxymore::Core
@@ -47,6 +48,10 @@ namespace Voxymore::Core
 		int ProfileDegree = 2;
 		std::vector<glm::vec3> Profile;
 		std::vector<float> ProfileWeights;
+
+		RendererData::TesselationControlParams TesscoParams{};
+		float simpleTesscoParams = 16;
+		bool useSimpleTessco = true;
 	private:
 		static bool ImGuiPolygonCurve(const std::string& name, std::vector<glm::vec3>& curve);
 		static bool ImGuiBezierCurve(const std::string& name, std::vector<glm::vec3>& curve, int& degree);

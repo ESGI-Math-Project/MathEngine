@@ -77,15 +77,27 @@ namespace Voxymore::Core {
 			int MainCurveNumberOfKnot = 0;
 		};
 
+		struct TesselationControlParams
+		{
+			float OuterLeft = 16.0f;
+			float OuterBottom = 16.0f;
+			float OuterRight = 16.0f;
+			float OuterTop = 16.0f;
+			float InnerLeftRight = 16.0f;
+			float InnerTopBottom = 16.0f;
+		};
+
 		CameraData CameraBuffer;
 		ModelData ModelBuffer;
 		LightData LightBuffer;
 		CurveParameters CurveBuffer;
+		TesselationControlParams TessCoBuffer;
 		Ref<UniformBuffer> CameraUniformBuffer;
 		Ref<UniformBuffer> ModelUniformBuffer;
 		Ref<UniformBuffer> LightUniformBuffer;
 		Ref<UniformBuffer> MaterialUniformBuffer;
 		Ref<UniformBuffer> CurveParametersBuffer;
+		Ref<UniformBuffer> TessCoParametersBuffer;
 		std::multimap<Real, std::tuple<const Ref<Mesh>, glm::mat4, int>> AlphaMeshes;
 		std::vector<std::tuple<const Ref<Mesh>, glm::mat4, int>> OpaqueMeshes;
 	};
@@ -118,7 +130,7 @@ namespace Voxymore::Core {
 		static void Submit(Ref<Material> material, int degree, const std::vector<glm::vec3>& points, const std::vector<float>& nodes, const std::vector<float>& weights, int lineDefinition = 1000, int entityId = -1);
 
 
-		static void Submit(Ref<Material> material, const CurveParams& mainCurve, const CurveParams& profileCurve, int lineDefinition = 1000, int entityId = -1);
+		static void Submit(Ref<Material> material, const CurveParams& mainCurve, const CurveParams& profileCurve, int lineDefinition = 1000, int entityId = -1, const RendererData::TesselationControlParams& tessco = {});
 
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 	private:
