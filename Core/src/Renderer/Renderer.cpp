@@ -380,7 +380,7 @@ namespace Voxymore::Core {
 		RenderCommand::DrawPatches(vertices.size());
 	}
 
-	void Renderer::Submit(Ref<Material> material, const CurveParams &mainCurve, const CurveParams &profileCurve, int lineDefinition, int entityId, const RendererData::TesselationControlParams& tessco)
+	void Renderer::Submit(Ref<Material> material, const CurveParams &mainCurve, const CurveParams &profileCurve, int lineDefinition, int entityId, const RendererData::TesselationControlParams& tessco, bool sampleAsRevolution)
 	{
 		VXM_PROFILE_FUNCTION();
 		// VXM_CORE_ASSERT(mainCurve.Points.size() <= s_Data.CurveBuffer.CurveControlPoints.size(), "The shader might won't support more than a {0} control point...", s_Data.CurveBuffer.CurveControlPoints.size());
@@ -409,16 +409,19 @@ namespace Voxymore::Core {
 		s_Data.CurveBuffer.ProfileDegree = profileCurve.Degree;
 
 		s_Data.CurveBuffer.MainCurveNumberOfKnot = static_cast<int>(mainPointCount);
+		s_Data.CurveBuffer.SampleAsRevolution = sampleAsRevolution ? 1 : 0;
 
 
+		VXM_CORE_ASSERT(mainCurve.Weights.size() >= mainPointCount, "Not enough Weights for the Main Curve.");
 		for (int i = 0; i < mainPointCount; ++i) {
 			s_Data.CurveBuffer.CurveControlPoints[i] = glm::vec4(mainCurve.Points[i],1);
-			// s_Data.CurveBuffer.CurveWeights[i] = mainCurve.Weights[i];
+			 s_Data.CurveBuffer.CurveWeights[i] = mainCurve.Weights[i];
 		}
 
+		VXM_CORE_ASSERT(profileCurve.Weights.size() >= profilePointCount, "Not enough Weights for the Profile Curve.");
 		for (int i = 0; i < profilePointCount; ++i) {
 			s_Data.CurveBuffer.ProfileControlPoints[i] = glm::vec4(profileCurve.Points[i],1);
-			// s_Data.CurveBuffer.ProfileWeights[i] = profileCurve.Weights[i];
+			 s_Data.CurveBuffer.ProfileWeights[i] = profileCurve.Weights[i];
 		}
 
 //		for (int i = 0; i < mainPointCount; ++i) {

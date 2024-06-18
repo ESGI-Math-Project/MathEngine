@@ -17,6 +17,10 @@
 
 namespace Voxymore::Core
 {
+	enum class SurfaceExtrudeType {
+		Revolution,
+		Generalize,
+	};
 
 	class ParametricSurfaceComponent : public SelfAwareComponent<ParametricSurfaceComponent>
 	{
@@ -36,7 +40,10 @@ namespace Voxymore::Core
 		CurveParams GetMainCurveParams(const glm::mat4& localToWorld) const;
 		CurveParams GetProfileCurveParams(const glm::mat4& localToWorld) const;
 	public:
+		SurfaceExtrudeType ExtrudeType = SurfaceExtrudeType::Generalize;
+
 		MaterialField Material;
+
 		int Definition = 100;
 
 		CurveType MainCurveType;
@@ -53,9 +60,12 @@ namespace Voxymore::Core
 		float simpleTesscoParams = 16;
 		bool useSimpleTessco = true;
 	private:
-		static bool ImGuiPolygonCurve(const std::string& name, std::vector<glm::vec3>& curve);
-		static bool ImGuiBezierCurve(const std::string& name, std::vector<glm::vec3>& curve, int& degree);
-		static bool ImGuiNurbsCurve(const std::string& name, std::vector<glm::vec3>& curve, std::vector<float>& weights);
+		bool GeneralizeImGui();
+		bool RevolutionImGui();
+
+		static bool ImGuiPolygonCurve(const std::string& name, std::vector<glm::vec3>& curve, bool asVec2 = false);
+		static bool ImGuiBezierCurve(const std::string& name, std::vector<glm::vec3>& curve, int& degree, bool asVec2 = false);
+		static bool ImGuiNurbsCurve(const std::string& name, std::vector<glm::vec3>& curve, std::vector<float>& weights, bool asVec2 = false);
 		static bool ImGuiCurveTypeCombo(const std::string& name, CurveType& curve);
 
 		bool DrawMainCurveGizmos(Entity e, const float* viewMatrix, const float* projectionMatrix);

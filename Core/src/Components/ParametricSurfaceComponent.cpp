@@ -62,9 +62,12 @@ namespace Voxymore::Core
 	{
 		VXM_PROFILE_FUNCTION();
 		bool changed = false;
+		{
+			static constexpr const char *const PSCNames[2] = {"Revolution", "Generalize"};
+			ImGui::Combo("Surface Extrude Type", (int*)&ExtrudeType, PSCNames, IM_ARRAYSIZE(PSCNames));
+		}
 
-		changed |= ImGuiLib::DrawAssetField("Material", &Material);
-		changed |= ImGui::DragInt("Definition", &Definition);
+		changed |= ImGuiLib::DrawAssetField("Material Generalize", &Material);
 
 		{
 			uint8_t controlledGizmoIndex = static_cast<uint8_t>(m_ControlledGizmos);
@@ -89,29 +92,14 @@ namespace Voxymore::Core
 			}
 		}
 
-		ImGui::PushID("Main Curve");
-		if(ImGui::CollapsingHeader("Main Curve")) {
-			changed |= ImGuiCurveTypeCombo("Type", MainCurveType);
-			switch(MainCurveType) {
-				case CurveType::Polygon: changed |= ImGuiPolygonCurve("Polygon Curve", MainCurve); break;
-				case CurveType::Bezier: changed |= ImGuiBezierCurve("Bezier Curve", MainCurve, MainCurveDegree); break;
-				case CurveType::Nurbs: changed |= ImGuiNurbsCurve("Nurbs Curve", MainCurve, MainCurveWeights); break;
-			}
+		switch (ExtrudeType) {
+			case SurfaceExtrudeType::Revolution:
+				changed |= RevolutionImGui();
+				break;
+			case SurfaceExtrudeType::Generalize:
+				changed |= GeneralizeImGui();
+				break;
 		}
-		ImGui::PopID();
-
-		ImGui::Separator();
-
-		ImGui::PushID("Profile");
-		if(ImGui::CollapsingHeader("Profile")) {
-			changed |= ImGuiCurveTypeCombo("Type", ProfileType);
-			switch(ProfileType) {
-				case CurveType::Polygon: changed |= ImGuiPolygonCurve("Polygon Curve", Profile); break;
-				case CurveType::Bezier: changed |= ImGuiBezierCurve("Bezier Curve", Profile, ProfileDegree); break;
-				case CurveType::Nurbs: changed |= ImGuiNurbsCurve("Nurbs Curve", Profile, ProfileWeights); break;
-			}
-		}
-		ImGui::PopID();
 
 		if(ImGui::CollapsingHeader("Tesselation Control"))
 		{
@@ -140,6 +128,68 @@ namespace Voxymore::Core
 				changed |= ImGui::SliderFloat("Inner Top Bottom", &TesscoParams.InnerTopBottom, 1, 64);
 			}
 		}
+
+		return changed;
+	}
+
+	bool ParametricSurfaceComponent::GeneralizeImGui()
+	{
+		bool changed = false;
+
+		ImGui::PushID("Main Curve");
+		if(ImGui::CollapsingHeader("Main Curve")) {
+			changed |= ImGuiCurveTypeCombo("Type", MainCurveType);
+			switch(MainCurveType) {
+				case CurveType::Polygon: changed |= ImGuiPolygonCurve("Polygon Curve", MainCurve); break;
+				case CurveType::Bezier: changed |= ImGuiBezierCurve("Bezier Curve", MainCurve, MainCurveDegree); break;
+				case CurveType::Nurbs: changed |= ImGuiNurbsCurve("Nurbs Curve", MainCurve, MainCurveWeights); break;
+			}
+		}
+		ImGui::PopID();
+
+		ImGui::Separator();
+
+		ImGui::PushID("Profile");
+		if(ImGui::CollapsingHeader("Profile")) {
+			changed |= ImGuiCurveTypeCombo("Type", ProfileType);
+			switch(ProfileType) {
+				case CurveType::Polygon: changed |= ImGuiPolygonCurve("Polygon Curve", Profile); break;
+				case CurveType::Bezier: changed |= ImGuiBezierCurve("Bezier Curve", Profile, ProfileDegree); break;
+				case CurveType::Nurbs: changed |= ImGuiNurbsCurve("Nurbs Curve", Profile, ProfileWeights); break;
+			}
+		}
+		ImGui::PopID();
+
+		return changed;
+	}
+
+	bool ParametricSurfaceComponent::RevolutionImGui()
+	{
+		bool changed = false;
+		ImGui::PushID("Main Curve");
+		if(ImGui::CollapsingHeader("Main Curve")) {
+			changed |= ImGuiCurveTypeCombo("Type", MainCurveType);
+			switch(MainCurveType) {
+				case CurveType::Polygon: changed |= ImGuiPolygonCurve("Polygon Curve", MainCurve); break;
+				case CurveType::Bezier: changed |= ImGuiBezierCurve("Bezier Curve", MainCurve, MainCurveDegree); break;
+				case CurveType::Nurbs: changed |= ImGuiNurbsCurve("Nurbs Curve", MainCurve, MainCurveWeights); break;
+			}
+		}
+		ImGui::PopID();
+
+		ImGuiLib::DrawVector<float>("Coefficient", &MainCurveWeights, [](const char* n, float* v){return ImGui::DragFloat(n,v);}, 1.0f, MainCurve.size(), MainCurve.size());
+
+
+		ImGui::PushID("Profile");
+		if(ImGui::CollapsingHeader("Profile")) {
+			changed |= ImGuiCurveTypeCombo("Type", ProfileType);
+			switch(ProfileType) {
+				case CurveType::Polygon: changed |= ImGuiPolygonCurve("Polygon Curve", Profile, true); break;
+				case CurveType::Bezier: changed |= ImGuiBezierCurve("Bezier Curve", Profile, ProfileDegree, true); break;
+				case CurveType::Nurbs: changed |= ImGuiNurbsCurve("Nurbs Curve", Profile, ProfileWeights, true); break;
+			}
+		}
+		ImGui::PopID();
 
 		return changed;
 	}
@@ -177,7 +227,7 @@ namespace Voxymore::Core
 		VXM_PROFILE_FUNCTION();
 		std::vector<glm::vec3> points(Profile.size());
 		std::transform(Profile.begin(), Profile.end(), points.begin(), [&localToWorld](const glm::vec3& p) {return Math::TransformPoint(localToWorld, p);});
-		auto begin = Profile[0];
+		auto begin = MainCurve[0];
 		//Profile should be an offset in world coordinate
 		std::transform(Profile.begin(), Profile.end(), points.begin(), [begin](const glm::vec3& p) {return p - begin;});
 		return points;
@@ -211,31 +261,51 @@ namespace Voxymore::Core
 		return params;
 	}
 
-	bool ParametricSurfaceComponent::ImGuiPolygonCurve(const std::string &name, std::vector<glm::vec3> &curve)
+	bool ParametricSurfaceComponent::ImGuiPolygonCurve(const std::string &name, std::vector<glm::vec3> &curve, bool asVec2)
 	{
 		VXM_PROFILE_FUNCTION();
 		bool changed = false;
 		ImGui::PushID(name.c_str());
-		changed |= ImGuiLib::DrawVector<glm::vec3>((name + " Polygon").c_str(), &curve, [](const char* name, glm::vec3* p){return ImGuiLib::DragReal3(name, glm::value_ptr(*p));}, glm::vec3(0));
+		std::function<bool(const char*, glm::vec3*)> func;
+		if(asVec2) {
+			func = [](const char* name, glm::vec3* p){p->z = 0; return ImGuiLib::DragReal2(name, glm::value_ptr(*p));};
+		} else {
+			func = [](const char* name, glm::vec3* p){return ImGuiLib::DragReal3(name, glm::value_ptr(*p));};
+		}
+		changed |= ImGuiLib::DrawVector<glm::vec3>((name + " Polygon").c_str(), &curve, func, glm::vec3(0));
 		ImGui::PopID();
 		return changed;
 	}
-	bool ParametricSurfaceComponent::ImGuiBezierCurve(const std::string &name, std::vector<glm::vec3> &curve, int &degree)
+
+	bool ParametricSurfaceComponent::ImGuiBezierCurve(const std::string &name, std::vector<glm::vec3> &curve, int &degree, bool asVec2)
 	{
 		VXM_PROFILE_FUNCTION();
 		bool changed = false;
 		ImGui::PushID(name.c_str());
+		std::function<bool(const char*, glm::vec3*)> func;
+		if(asVec2) {
+			func = [](const char* name, glm::vec3* p){p->z = 0; return ImGuiLib::DragReal2(name, glm::value_ptr(*p));};
+		} else {
+			func = [](const char* name, glm::vec3* p){return ImGuiLib::DragReal3(name, glm::value_ptr(*p));};
+		}
 		changed |= ImGui::DragInt((name + " Degree").c_str(), &degree, 1, 1, INT_MAX);
-		changed |= ImGuiLib::DrawVector<glm::vec3>((name + " Bezier Curve").c_str(), &curve, [](const char* name, glm::vec3* p){return ImGuiLib::DragReal3(name, glm::value_ptr(*p));}, glm::vec3(0));
+		changed |= ImGuiLib::DrawVector<glm::vec3>((name + " Bezier Curve").c_str(), &curve, func, glm::vec3(0));
 		ImGui::PopID();
 		return changed;
 	}
-	bool ParametricSurfaceComponent::ImGuiNurbsCurve(const std::string &name, std::vector<glm::vec3> &curve, std::vector<float> &weights)
+
+	bool ParametricSurfaceComponent::ImGuiNurbsCurve(const std::string &name, std::vector<glm::vec3> &curve, std::vector<float> &weights, bool asVec2)
 	{
 		VXM_PROFILE_FUNCTION();
 		bool changed = false;
 		ImGui::PushID(name.c_str());
-		changed |= ImGuiLib::DrawVector<glm::vec3>((name + " Nurbs Curve").c_str(), &curve, [](const char* name, glm::vec3* p){return ImGuiLib::DragReal3(name, glm::value_ptr(*p));}, glm::vec3(0));
+		std::function<bool(const char*, glm::vec3*)> func;
+		if(asVec2) {
+			func = [](const char* name, glm::vec3* p){p->z = 0; return ImGuiLib::DragReal2(name, glm::value_ptr(*p));};
+		} else {
+			func = [](const char* name, glm::vec3* p){return ImGuiLib::DragReal3(name, glm::value_ptr(*p));};
+		}
+		changed |= ImGuiLib::DrawVector<glm::vec3>((name + " Nurbs Curve").c_str(), &curve, func, glm::vec3(0));
 		changed |= ImGuiLib::DrawVector<float>((name + " Weight").c_str(), &weights, VXM_BIND_FN(ImGui::DragFloat), 0, curve.size(), curve.size());
 		ImGui::PopID();
 		return changed;
@@ -308,6 +378,9 @@ namespace Voxymore::Core
 			{
 				Vec3 worldPos = matrix[3];
 				Profile[i] = Math::TransformPoint(glm::inverse(selfMat), worldPos);
+				if(ExtrudeType == SurfaceExtrudeType::Revolution) {
+					Profile[i].z = 0;
+				}
 			}
 			ImGuizmo::PopID();
 		}

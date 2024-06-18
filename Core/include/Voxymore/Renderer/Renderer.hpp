@@ -75,6 +75,7 @@ namespace Voxymore::Core {
 			int ProfileType = 0;
 
 			int MainCurveNumberOfKnot = 0;
+			int SampleAsRevolution = 0;
 		};
 
 		struct TesselationControlParams
@@ -130,7 +131,7 @@ namespace Voxymore::Core {
 		static void Submit(Ref<Material> material, int degree, const std::vector<glm::vec3>& points, const std::vector<float>& nodes, const std::vector<float>& weights, int lineDefinition = 1000, int entityId = -1);
 
 
-		static void Submit(Ref<Material> material, const CurveParams& mainCurve, const CurveParams& profileCurve, int lineDefinition = 1000, int entityId = -1, const RendererData::TesselationControlParams& tessco = {});
+		static void Submit(Ref<Material> material, const CurveParams& mainCurve, const CurveParams& profileCurve, int lineDefinition = 1000, int entityId = -1, const RendererData::TesselationControlParams& tessco = {}, bool sampleAsRevolution = false);
 
 		inline static RendererAPI::API GetAPI() { return RendererAPI::GetAPI(); }
 	private:
