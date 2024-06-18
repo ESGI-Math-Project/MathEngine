@@ -102,5 +102,14 @@ namespace Voxymore {
 			}
 		}
 
+		void OpenGLRenderAPI::EnableDoubleSided(bool enable)
+		{
+			if(enable) {
+				glEnable(GL_CULL_FACE);
+			} else {
+				glDisable(GL_CULL_FACE);
+			}
+		}
+
 	} // Voxymore
 } // Core

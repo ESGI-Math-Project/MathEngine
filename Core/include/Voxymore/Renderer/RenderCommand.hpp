@@ -59,6 +59,11 @@ namespace Voxymore::Core {
 			VXM_PROFILE_FUNCTION();
 			s_RendererAPI->EnableWireframe(enable);
 		}
+
+		inline static void EnableDoubleSided(bool enable) {
+			VXM_PROFILE_FUNCTION();
+			s_RendererAPI->EnableDoubleSided(enable);
+		}
     private:
         static RendererAPI* s_RendererAPI;
     };

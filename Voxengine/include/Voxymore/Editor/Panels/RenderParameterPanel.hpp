@@ -21,6 +21,7 @@ namespace Voxymore::Editor
 
 	private:
 		static inline bool s_DrawWireframe = false;
+		static inline bool s_DrawDoublesided = true;
 	};
 
 } // namespace Voxymore::Editor

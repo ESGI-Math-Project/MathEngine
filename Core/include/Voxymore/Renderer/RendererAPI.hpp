@@ -39,6 +39,7 @@ namespace Voxymore::Core {
 
 		virtual void DrawPatches(uint32_t verticesPerPatch) = 0;
 		virtual void EnableWireframe(bool enable) = 0;
+		virtual void EnableDoubleSided(bool enable) = 0;
 
 		inline static API GetAPI() { return s_API; }
 	private:
